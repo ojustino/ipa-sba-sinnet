@@ -1,7 +1,4 @@
 import functools as ft
-import numpy as np
-#import operator
-import pandas as pd
 import re
 import sys
 import unicodedata
@@ -9,15 +6,13 @@ import unicodedata
 from better_abc import ABC, abstractmethod#, abstract_attribute
 from bs4 import BeautifulSoup
 #from collections import Counter
-#from datetime import datetime
 from PyQt5.QtCore import pyqtSignal, QEventLoop, QTimer, QUrl
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWebEngineWidgets import QWebEnginePage#, QWebEngineView
 
-# EVALUATE whether making HOME_URL a global variable is necessary
-# (at the moment, only NameCheck's list of init args needs it)
-HOME_URL = 'http://www.tennisabstract.com/'
+
 _app = QApplication(sys.argv) # must be defined before instantiating a QObject
+HOME_URL = 'http://www.tennisabstract.com/'
 
 class _LoadAndInteractMeta(type(QWebEnginePage), type(ABC)):
     '''
@@ -28,11 +23,10 @@ class _LoadAndInteractMeta(type(QWebEnginePage), type(ABC)):
 
 class LoadAndInteract(QWebEnginePage, ABC, metaclass=_LoadAndInteractMeta):
     '''
-    A parent for NameCheck, DownloadStats, or any class that uses PyQt5's
-    headless browsing framework to load a webpage (static or
-    JavaScript-rendered), "interact" with it (typically by programmatically
-    triggering one or more JavaScript events), and save the result, whether it's
-    the entire webpage, a section, or just a particular element.
+    A parent for NameCheck, QueryData, or any class that uses PyQt5's headless
+    browsing framework to load a webpage (static or JavaScript-rendered),
+    "interact" with it (typically by programmatically triggering one or more
+    JavaScript events), and save elements of interest from the page.
 
     This is an abstract base class defined such that any children must include a
     self.on_load_finish() method that ends with a call to
@@ -292,19 +286,17 @@ class NameCheck(LoadAndInteract):
                 'Otherwise, be more specific if possible, providing '
                 'full first *and* last names.')
 
-class DownloadStats(LoadAndInteract):
+class QueryData(LoadAndInteract):
     '''
-    Scrapes all available match data from the tables on a Tennis Abstract
-    webpage associated with the provided URL. Saves the result in the `stats`
-    attribute, a pandas DataFrame.
+    Performs the actual connection-based query work for DownloadStats() by
+    scraping all available match data from the tables on a Tennis Abstract
+    webpage associated with the provided URL.
 
     Inherits from LoadAndInteract to handle initial loading of the webpage and
     set itself up for interaction, then saves the intial match data table.
     More information is usually accessible upon clicking a link or two, so it
     simulates an appropriate number of click events and saves the resulting
-    table after each step. After disconnecting from the webpage, the class
-    joins the saved tables, converts the HTML into a DataFrame, and applies some
-    light formatting before finishing its initialization.
+    table after each step.
 
     Arguments
     ---------
@@ -315,7 +307,6 @@ class DownloadStats(LoadAndInteract):
     tour : str, required
         The chosen player's tour. Should be 'WTA' if the player is female or
         'ATP' if the player is male.
-        PERHAPS DOESN'T NEED TO TAKE tour AND CAN INSTEAD SCAN THE URL -- IF THERE'S A 'w' BEFORE 'player', IT'S A WTA PLAYER; ELSE, IT'S ATP
 
     load_images : boolean, optional
         When False, prevents images on the target webpage from loading, which
@@ -332,15 +323,13 @@ class DownloadStats(LoadAndInteract):
     toHtmlFinished = pyqtSignal()
 
     def __init__(self, url, tour, load_images=False):
-        #self.app = app
         self.tour = self.ready_tour(tour)
 
         self.html_tables = []
         self.title = None
 
-        # load URL, retrieve and merge stats tables
+        # load URL
         super().__init__(url, load_images)
-        self.stats = self.merge_and_edit_tables()
 
     def ready_tour(self, tour):
         tour = tour.upper()
@@ -469,93 +458,3 @@ class DownloadStats(LoadAndInteract):
                 self.title = ''
 
         self.toHtmlFinished.emit()
-
-    def merge_and_edit_tables(self):
-        #print('merge_and_edit')
-
-        # ensure that we received tables -- if not, report what happened
-        test = self.html_tables[0]
-        if (test is None) or (test.contents == []):
-            raise ValueError(
-                'Your query returned a blank page. The package likely '
-                'produced an invalid URL. Try another search and open an '
-                'issue about these filters in the repository, if you may.')
-        elif test.name == 'p':
-            raise ValueError('Your filters produced no matches. '
-                             'Try making them less stringent?')
-        elif test.name != 'table':
-            raise ValueError(
-                'Unexpected result on website. Something likely failed '
-                'inside this package. Try a different search and open an '
-                'issue about these filters in the repository, if you may.')
-
-        # convert the table html strings into (at least two) DataFrames
-        table_strs = [tab.decode() for tab in self.html_tables]
-        table_dfs = [pd.read_html(tab).pop() for tab in table_strs]
-
-        # merge the DataFrames. pd.merge only takes two, so if there are
-        # more, use ft.reduce use it in a chain
-        stats_df = ft.reduce(pd.merge, table_dfs)
-        stats_df = stats_df.iloc[:-1] # last row has an unneeded link
-
-        # fill NaNs in as -1
-        #stats_df = stats_df.fillna(-1)
-
-        # give name to results column
-        result_col_og = 'Unnamed: 6'
-        assert result_col_og in set(stats_df.columns), ('column names/order '
-                                                        'might have changed')
-        stats_df.rename(columns={result_col_og: 'Result'}, inplace=True)
-
-        # add a column to note whether the match was a win or loss
-        stats_df['Won'] = np.zeros(stats_df.shape[0])
-
-        # move it beside the 'Score' column
-        new_cols = list(stats_df.columns)
-        score_at = new_cols.index('Score')
-        new_cols.insert(score_at, new_cols.pop())
-
-        stats_df = stats_df[new_cols]
-
-        # fill it out based on 'Result' column
-        for ind, row in stats_df.iterrows():
-            rslt = row['Result']
-
-            # where is the 'd.'?
-            # (As in 'Player1 d. Player2'; there should only be one)
-            defeat = [st.span()[0] for st in re.finditer('d\.', rslt)]
-            if len(defeat) == 1:
-                defeat = defeat.pop()
-            else:
-                raise ValueError("Unexpected 'Result' string; "
-                                 "losing player is unclear.")
-
-            # where is the opponent's name? it's usually followed by
-            # their country of origin, like '[USA]'. (again, only expect 1)
-            opp = [st.span()[0] for st in re.finditer('\[.*\]', rslt)]
-            if len(opp) == 1:
-                opp = opp.pop()
-            else:
-                raise ValueError("Unexpected 'Result' string; "
-                                 "opponent country is unclear.")
-
-            # what about special cases?
-            #walkover = [st.span()[-1] for st in re.finditer('W/O', result)]
-            #retired
-
-            # if the 'd.' came before the opponent, the result is a win
-            stats_df.loc[ind, 'Won'] = 1 if defeat < opp else 0
-
-        # change dtype of columns with numbers that could all be ints
-        flt_cols = [col for col in stats_df.columns
-                    if stats_df[col].dtype == float]
-
-        for col in flt_cols:
-            valid_entries = stats_df[col].dropna()
-            n_ints = sum([n.is_integer() for n in valid_entries])
-
-            if n_ints == len(valid_entries):
-                stats_df[col] = stats_df[col].astype(pd.Int64Dtype())
-
-        return stats_df
-
