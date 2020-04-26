@@ -123,6 +123,10 @@ _(note that you only need one `'&f='` per URL; concatenate categories if
 ____
 **third batch**
 - [X] as Rank
+    - **i figured out that this category's codes change based on the specific
+    player's career high, which means these codes only work for players who
+    have been number 1. would be great if this attribute worked more like
+    'vs Rank'**
     - for now, limiting to:
         - Number 1 (`'&f=G0'`)
         - Top 5 (`'&f=G1'`)

@@ -58,20 +58,18 @@ class ValidateURLAttrs:
         #          'SURF_KEY': 'surface', 'LEVEL_KEY': 'level'}
 
         #VALID_ATTRS = ['head-to-head', 'exclude opp', 'time span', 'surface', 'level']
-        #VALID_ATTRS = [var for var in attrs.keys() if var.endswith('_KEY')]
+        #VALID_ATTRS = [var for var in attrs if var.endswith('_KEY')]
 
         attr_codes = {}
         final_code = ''
 
         # check that start/end dates are both either present or absent
-        if (   (TIME1_KEY in kwargs.keys())
-               + (TIME2_KEY in kwargs.keys()) == 1  ):
+        if ( (TIME1_KEY in kwargs) + (TIME2_KEY in kwargs) == 1 ):
             raise ValueError(
                 f"'{TIME1_KEY}' and '{TIME2_KEY}' must both be present "
                 "or absent in your 'attrs' dict.")
         # if both are present, check that they're properly ordered
-        elif (   (TIME1_KEY in kwargs.keys())
-                 + (TIME2_KEY in kwargs.keys()) == 2  ):
+        elif ( (TIME1_KEY in kwargs) + (TIME2_KEY in kwargs) == 2 ):
             if kwargs[TIME1_KEY] >= kwargs[TIME2_KEY]:
                 (kwargs[TIME1_KEY],
                  kwargs[TIME2_KEY]) = kwargs[TIME2_KEY], kwargs[TIME1_KEY]
@@ -344,16 +342,16 @@ class ValidateURLAttrs:
         value = value.title()
 
         if value == 'Australian Open':
-            code = _simple_event_code(value)
+            code = self._simple_event_code(value)
 
         elif (value == 'Roland Garros') or (value == 'French Open'):
-            code = _simple_event_code('Roland Garros')
+            code = self._simple_event_code('Roland Garros')
 
         elif value == 'Wimbledon':
-            code = _simple_event_code(value)
+            code = self._simple_event_code(value)
 
         elif value == 'US Open':
-            code = _simple_event_code(value)
+            code = self._simple_event_code(value)
 
         elif value == 'Tour Finals':
             if tour == 'ATP':
@@ -368,21 +366,21 @@ class ValidateURLAttrs:
                 code = 'qq,'.join(special_vals)
 
         elif value == 'Olympics':
-            code = _simple_event_code(value)
+            code = self._simple_event_code(value)
 
         elif value == 'Davis Cup':
             if tour == 'WTA':
                 raise ValueError(
                     f"'{value}' and '{tour}' do not go together. Try 'Davis "
                     "Cup' with 'ATP' or 'Fed Cup' with 'WTA'.")
-            code = _simple_event_code(value)
+            code = self._simple_event_code(value)
 
         elif value == 'Fed Cup':
             if tour == 'ATP':
                 raise ValueError(
                     f"'{value}' and '{tour}' do not go together. Try 'Davis "
                     "Cup' with 'ATP' or 'Fed Cup' with 'WTA'.")
-            code = _simple_event_code(value)
+            code = self._simple_event_code(value)
 
         elif value == 'Indian Wells':
             if tour == 'ATP':
@@ -397,7 +395,7 @@ class ValidateURLAttrs:
                 # began in 89. same name every year except 91, which is
                 # 'Palm Springs'. that overlaps with the 78 colgate series
                 # championship in the data, so i will likely just leave 91 out
-                code = _simple_event_code(value)
+                code = self._simple_event_code(value)
 
         elif value == 'Miami':
             if tour == 'ATP':
@@ -415,25 +413,25 @@ class ValidateURLAttrs:
             if tour == 'ATP':
                 # newer tourney; no old names to worry about
                 # (there was a separate, non-Masters Madrid Open from 72-94)
-                code = (_simple_event_code(value, False)
+                code = (self._simple_event_code(value, False)
                         + '_Masters' + 'qq')
             else: #== 'WTA'
                 # newer tourney; no old names to worry about
-                code = _simple_event_code(value)
+                code = self._simple_event_code(value)
 
         elif value == 'Rome':
             if tour == 'ATP':
                 # old tourney, but same name throughout data (back to ~70s)
-                code = (_simple_event_code(value, False)
+                code = (self._simple_event_code(value, False)
                         + '_Masters' + 'qq')
             else: #== 'WTA'
                 # old tourney, but same name throughout data (back to 79)
-                code = _simple_event_code(value)
+                code = self._simple_event_code(value)
 
         elif value == 'Washington':
             # ATP: old tourney, but same name back to 70
             # WTA: newer tourney; no old names to worry about
-            code = _simple_event_code(value)
+            code = self._simple_event_code(value)
 
         elif value == 'Canada':
             if tour == 'ATP':
@@ -450,18 +448,23 @@ class ValidateURLAttrs:
         elif value == 'Cincinnati':
             if tour == 'ATP':
                 # old tourney, but same name throughout data
-                code = (_simple_event_code(value, False)
+                code = (self._simple_event_code(value, False)
                         + '_Masters' + 'qq')
             else: #== 'WTA'
                 # not held from 74-87 and 89-03. there was a separate avon
                 # tourney from 80-82 also labeled on the site as 'Cincinnati';
                 # there's no quick way to differentiate them. don't think it's
                 # worth it to correct for 3 years in the 80s
-                code = _simple_event_code(value)
+                code = self._simple_event_code(value)
 
         elif value == 'Beijing':
             # newer tourney; no old names to worry about
-            code = _simple_event_code(value)
+            code = self._simple_event_code(value)
+
+        else:
+            raise ValueError(
+                "Invalid value for key 'event'. If your spelling is correct, "
+                "it may be that this event is not yet supported.")
 
         return code
 
@@ -473,6 +476,9 @@ class ValidateURLAttrs:
         valid, encodes it in Tennis Abstract's URL style and returns the result.
 
         WOULD BE NICE TO BE ABLE TO ENTER CUSTOM RANKINGS FOR THIS FILTER AS YOU CAN WITH 'vs rank'.
+        THIS ATTRIBUTE'S CODES CHANGE DEPENDING ON THE QUERIED PLAYER'S CAREER HIGH...
+        '0' goes with Number 1 for Roger Federer but 'Top 50' for Frances Tiafoe, and other categories are moved up as well.
+        Might have to remove this category entirely until that's changed.
 
         Arguments
         ---------
@@ -519,12 +525,12 @@ class ValidateURLAttrs:
             value = value.title()
 
             if value in {'Top 10', 'Top 20', 'Top 50', 'Top 100'}:
-                code = _simple_event_code(value)
+                code = self._simple_event_code(value)
             elif value == 'Top 5':
                 if tour == 'WTA':
                     return self._validate_vsrank((1, 5), tour)
                 else:
-                    code = _simple_event_code(value)
+                    code = self._simple_event_code(value)
             else:
                 raise ValueError(
                     "Invalid value for key 'vs rank'. Choose from 'Top 5', "
@@ -844,7 +850,7 @@ class ValidateURLAttrs:
                 code = '0i1'
             else: # == 'ATP'
                 code = '6'
-        elif re.match('\d of \d sets', value) or re.match('\d/\d', value):
+        elif re.match(r'\d of \d sets', value) or re.match(r'\d/\d', value):
             if tour == 'WTA': # 2/3 and 3/3 when tour=='WTA' was caught earlier
                 raise ValueError(
                     "Sorry, this option is only available for ATP players. For "
@@ -950,6 +956,6 @@ class ValidateURLAttrs:
         if code is None:
             raise ValueError("Invalid value for key 'score'. Choose 'all', "
                              "'won', or 'lost' for scores of '7-6', '7-5', "
-                             "'6-0', or '6-1' (e.g., 'all 7-6', 'lost 6-0')")
+                             "'6-0', or '6-1' (e.g., 'all 7-6', 'lost 6-0').")
 
         return code
