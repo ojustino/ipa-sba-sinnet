@@ -210,8 +210,12 @@ class DownloadStats:
         if url is not None: # user provided `url` in __init__
             # the character after 'cgi-bin/' in the URL differs with the tour
             differentiate = re.search('cgi-bin/.', url).group()
+            # it'd be good to check if 'tennisabstract.com' and 'player-classic'
+            # are present as well. could be a separate _validate_url() method
 
-            if differentiate[-1] == 'w':
+            if differentiate is None:
+                raise ValueError('Unexpected URL.')
+            elif differentiate[-1] == 'w':
                 tour = 'WTA'
             elif differentiate[-1] == 'p':
                 tour = 'ATP'
