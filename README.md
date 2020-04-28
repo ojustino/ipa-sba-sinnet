@@ -13,6 +13,15 @@ http://www.tennisabstract.com/cgi-bin/wplayer-classic.cgi?p=SerenaWilliams&f=Acx
 this package provides a programmatic interface for finding fast answers and
 learning more about the results.
 
+Skills used:
+<br>
+_(bear with me; I'm job-hunting)_
+
+Headless browsing with `PyQt5`, HTML DOM manipulation, event triggering in
+JavaScript, data(Frame) manipulation with `pandas`, testing with `pytest`,
+object-oriented programming, multiple inheritance, regular expressions, and
+more.
+
 ### Example usage:
 
 Read through

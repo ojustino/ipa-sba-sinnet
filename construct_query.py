@@ -231,10 +231,13 @@ class DownloadStats:
 
     def merge_and_edit_tables(self, html_tables):
         '''
-        (...) Since data is spread across multiple tables on Tennis Abstract's
-        player data pages, they must be merged after the query completes. The
-        method does so by converting them into one pandas DataFrame and
-        applying some formatting (typing, handling NaNs, etc.)
+        Convert a query's resulting match data table into a final pandas
+        DataFrame that's ready to be handed off to the user.
+
+        Since data is spread across multiple tables on Tennis Abstract's
+        player data pages, they must be merged post-query. The method does so by
+        converting them into a single DataFrame and applying some formatting
+        (simplifying categories, typing, handling null values, etc.)
 
         Arguments
         ---------
@@ -242,8 +245,6 @@ class DownloadStats:
         html_tables : list, required
             A list of HTML tables retrieved from the query.
         '''
-        #print('merge_and_edit')
-
         # ensure that we received tables -- if not, report what happened
         test = html_tables[0]
         if (test is None) or (test.contents == []):
@@ -266,112 +267,133 @@ class DownloadStats:
 
         # merge the DataFrames. pd.merge only takes two, so if there are
         # more, use ft.reduce use it in a chain
-        stats_df = ft.reduce(pd.merge, table_dfs)
-        stats_df = stats_df.iloc[:-1] # last row has an unneeded link
+        data = ft.reduce(pd.merge, table_dfs)
+        data = data.iloc[:-1] # last row has an unneeded link
 
-        # fill NaNs in as -1
-        #stats_df = stats_df.fillna(-1)
+        # format NaNs consistently, including other null patterns
+        data.fillna(np.nan)
+        data = data.replace(['^-$', r'-.*\(\d*/\d*\)'], np.nan, regex=True)
 
         # give name to results column
         result_col_og = 'Unnamed: 6'
-        assert result_col_og in set(stats_df.columns), ('column names/order '
-                                                        'might have changed')
-        stats_df.rename(columns={result_col_og: 'Result'}, inplace=True)
+        assert result_col_og in set(data.columns), ('column names/order '
+                                                    'might have changed')
+        data = data.rename(columns={result_col_og: 'Result'})
 
         # add a column to note whether the match was a win or loss
-        stats_df['Won'] = np.zeros(stats_df.shape[0])
+        # (if 'd.' comes before the country code, it's a win)
+        won = (lambda val: (1 if re.search(r'd\.', val).span()[0]
+                            < re.search(r'\[.*\]', val).span()[0]
+                            else 0))
+        # what about special cases?
+        #walkover = [st.span()[-1] for st in re.finditer('W/O', result)]
+        #retired...
+        # need to account for failed searches... think about how
+        #raise ValueError("Unexpected 'Result' string; "...)
+
+        data['Won'] = data['Result'].apply(won)
 
         # move it beside the 'Score' column
-        new_cols = list(stats_df.columns)
-        score_at = new_cols.index('Score')
-        new_cols.insert(score_at, new_cols.pop())
+        all_cols = list(data.columns)
+        score_at = all_cols.index('Score')
+        all_cols.insert(score_at, all_cols.pop())
 
-        stats_df = stats_df[new_cols]
+        data = data[all_cols]
 
-        # fill it out based on 'Result' column
-        for ind, row in stats_df.iterrows():
-            rslt = row['Result']
+        # change dtype of columns w/ percentages as strings
+        for col in data.columns:
+            valid_entries = data[col].dropna()
+            examp = (valid_entries.iloc[0]
+                     if valid_entries.size > 0 else None)
 
-            # where is the 'd.'?
-            # (As in 'Player1 d. Player2'; there should only be one)
-            defeat = [st.span()[0] for st in re.finditer('d\.', rslt)]
-            if len(defeat) == 1:
-                defeat = defeat.pop()
+            if examp is None:
+                # skip columns where this isn't the case
+                continue
+            elif isinstance(examp, str) and examp[-1] == '%':
+                # convert values. throw out those below 0 or above 100
+                # (slicing by [:-1] removes index with '%')
+                data[col] = data[col].apply(lambda val: float(val[:-1])
+                                            if pd.notnull(val)
+                                            and 0 <= float(val[:-1]) <= 100
+                                            else np.nan)
+
+                # ensure that column dtype has changed
+                data = data.astype({col: np.float64})
+
+                # add pct sign to these columns' names if it isn't present
+                if col[-1] != '%':
+                    data = data.rename(columns={col: col + '%'})
+            elif isinstance(examp, float):
+                # if all floats in the col could be ints, make it an int column
+                if all(en.is_integer() for en in valid_entries):
+                    data = data.astype({col: pd.Int64Dtype()})
+
+        # split each break point column into two:
+        # BPCo(n)v & BPS(a)v(e)d into Brks/BPForced & Brkn/BPFaced
+        bp_cols = (col for col in data.columns if col.startswith('BP'))
+
+        for col, col_data in data[bp_cols].iteritems():
+            # set names for new columns based on current, "old" BP column
+            new_cols = (['Brkn', 'BPFaced'] if re.match('BPSa?ve?d', col)
+                        else ['Brks', 'BPForced'] if re.match('BPCo?nv', col)
+                        else [])
+
+            if new_cols:
+                # save split version of BP column to be updated later
+                # (format is 'NN.N% (Y/Z)'; split to get Y and Z)
+                bp_info = col_data.apply(lambda vals: vals.split()[-1]
+                                         if pd.notnull(vals) else np.nan)
+
+                # add new columns in same order as Y and Z, ensuring type
+                for i, c in enumerate(new_cols):
+                    data[c] = bp_info.apply(lambda val:
+                                            int(re.findall(r'\d+', val)[i])
+                                            if pd.notnull(val) else np.nan)
+                    data = data.astype({c: pd.Int64Dtype()})
+
+                # move new columns beside predecessor BP column; drop the latter
+                all_cols = list(data.columns)
+                old_col_at = all_cols.index(col)
+                all_cols = (all_cols[:old_col_at] + new_cols
+                            + all_cols[old_col_at+1 : -len(new_cols)])
+                data = data[all_cols]
             else:
-                raise ValueError("Unexpected 'Result' string; "
-                                 "losing player is unclear.")
+                # import warnings!
+                warnings.warn(f"Unexpected break point column name '{col}'")
 
-            # where is the opponent's name? it's usually followed by
-            # their country of origin, like '[USA]'. (again, only expect 1)
-            opp = [st.span()[0] for st in re.finditer('\[.*\]', rslt)]
-            if len(opp) == 1:
-                opp = opp.pop()
+        # finish changing 'BPSaved' to 'Brkn' (i.e., 'BPLost')
+        data['Brkn'] = data['BPFaced'] - data['Brkn']
+
+        # change dtypes of as of yet untouched 'object' type columns
+        oth_cols = (col for col in data.columns
+                    if data[col].dtype == np.dtype('O'))
+        oth_col_types = []
+
+        for col in oth_cols:
+            valid_entries = data[col].dropna()
+            examp = (valid_entries.iloc[0]
+                     if valid_entries.size > 0 else '')
+
+            if examp:
+                # if examp is a number, type it as a float or int
+                try:
+                    oth_type = (pd.Int64Dtype()
+                                if all(en.is_integer() for en in valid_entries)
+                                else np.float64)
+                # if examp is not a number, type it as a str
+                except AttributeError:
+                    oth_type = pd.StringDtype()
             else:
-                raise ValueError("Unexpected 'Result' string; "
-                                 "opponent country is unclear.")
+                # if column is all NaNs, don't change its dtype
+                oth_type = np.dtype('O')
 
-            # what about special cases?
-            #walkover = [st.span()[-1] for st in re.finditer('W/O', result)]
-            #retired
+            # add this column's adjusted type to the list
+            oth_col_types.append(oth_type)
 
-            # if the 'd.' came before the opponent, the result is a win
-            stats_df.loc[ind, 'Won'] = 1 if defeat < opp else 0
+        # assign the new dtypes
+        data = data.astype(dict(zip(oth_cols, oth_col_types)))
 
-        # # assign dtypes to each column
-        # for col in stats_df.columns:
-        #   valid_entries = stats_df[col].dropna()
-        #   example = valid_entries.iloc[0]
+        # stretch: if most stat cols in a row are NaN make all stat entries in
+        # that row NaN?
 
-        #   if valid_entries.size == 0:
-        #       continue
-        #   elif isinstance(example, str):
-        #       # with str, pd.read_html uses 'nan' instead of np.NaN,
-        #       # so fix that and re-drop NaNs
-        #       valid_str_entries = valid_entries.apply(lambda n:
-        #                                               np.nan if n == 'nan'
-        #                                               else n).dropna()
-        #       example = (valid_str_entries.iloc[0]
-        #                  if valid_str_entries.size > 0 else '')
-
-        #       if example[-1] == '%':
-        #           # remove percent sign and convert the number to a float
-        #           #stats_df[col] = [float(pct[:-1]) for pct in stats_df[col]]
-        #           pct_to_float = lambda pct: np.float64(pct[:-1])
-        #           stats_df[col][] = stats_df[col].apply(pct_to_float)
-        #       elif '%' in example:
-        #           # typically for BPSaved/BPConv columns
-        #           #BPConv/BPCnv, BPSaved/BpSavd to:
-        #           #BPForced/Breaks, BPFaced/OppBreaks
-
-        #       else:
-        #           continue
-        #       stats_df[col] = stats_df[col].astype(str)
-        #       #stats_df[col] = stats_df[col].astype(pd.StringDtype())
-        #       #switch to commented line after testing 0.25.0 and finally 1.0.0
-        #       #https://pandas.pydata.org/pandas-docs/stable/user_guide/text.html
-        #   elif isinstance(example, float):
-        #       n_ints = sum([n.is_integer() for n in valid_entries])
-        #       # change column dtype to int if it fits
-        #       if n_ints == len(valid_entries):
-        #           stats_df[col] = stats_df[col].astype(pd.Int64Dtype())
-        #       # otherwise, explicitly set the column's dtype as float
-        #       else:
-        #           stats_df[col] = stats_df[col].astype(float)
-        #   elif isinstance(example, (int, np.integer)):
-        #       stats_df[col] = stats_df[col].astype(pd.Int64Dtype())
-        #   else:
-        #       print(col)
-        #       continue
-
-        # change dtype of columns with numbers that could all be ints
-        flt_cols = [col for col in stats_df.columns
-                    if stats_df[col].dtype == float]
-
-        for col in flt_cols:
-            valid_entries = stats_df[col].dropna()
-            n_ints = sum([n.is_integer() for n in valid_entries])
-
-            if n_ints == len(valid_entries):
-                stats_df[col] = stats_df[col].astype(pd.Int64Dtype())
-
-        return stats_df
+        return data

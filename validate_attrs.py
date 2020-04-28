@@ -52,14 +52,6 @@ class ValidateURLAttrs:
         HAND_KEY = 'vs hand'
         HEIGHT_KEY = 'vs height'
 
-        # attrs = {'H2H_KEY': 'head-to-head', 'EXCLUDE_KEY': 'exclude opp',
-        #          'TIME1_KEY': 'start date', 'TIME2_KEY': 'end date',
-        #          #'TIME3_KEY': 'year',
-        #          'SURF_KEY': 'surface', 'LEVEL_KEY': 'level'}
-
-        #VALID_ATTRS = ['head-to-head', 'exclude opp', 'time span', 'surface', 'level']
-        #VALID_ATTRS = [var for var in attrs if var.endswith('_KEY')]
-
         attr_codes = {}
         final_code = ''
 

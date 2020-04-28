@@ -8,9 +8,6 @@ from validate_attrs import ValidateURLAttrs
 
 val_obj = ValidateURLAttrs()
 
-# def call_val_attr(tour, **kwargs):
-#     return val_obj._validate_attrs(tour=tour, **kwargs)
-
 # remember that capitalization is typically not important in attribute values
 validations = [
     # h2h and exclude (lists and strings)
@@ -19,14 +16,14 @@ validations = [
      'expect': '&f=ACareerqq&q=JoWilfriedTsonga,GaelMonfils'},
     {'tour': 'ATP', 'attrs': {'exclude opp': ['jo-wi tsong', 'gael mONf']},
      'expect': '&f=ACareerqq&x=JoWilfriedTsonga,GaelMonfils'},
-    {'tour': 'WTA', 'attrs': {'exclude opp': 'Venus'},
-     'expect': '&f=ACareerqq&x=VenusWilliams'},
+    {'tour': 'WTA', 'attrs': {'exclude opp': 'Sab Lisi'},
+     'expect': '&f=ACareerqq&x=SabineLisicki'},
     {'tour': 'WTA', 'attrs': {'head-to-head': ['Venus', 'bia rees']},
      'expect': '&f=ACareerqq&q=VenusWilliams,BiancaAndreescu'},
-    {'tour': 'ATP', 'attrs': {'head-to-head': ['ndy Murray']},
-     'expect': '&f=ACareerqq&q=AndyMurray'},
-    {'tour': 'ATP', 'attrs': {'head-to-head': 'ndy Murray'},
-     'expect': '&f=ACareerqq&q=AndyMurray'},
+    {'tour': 'ATP', 'attrs': {'head-to-head': ['juan potro']},
+     'expect': '&f=ACareerqq&q=JuanMartinDelPotro'},
+    {'tour': 'ATP', 'attrs': {'head-to-head': 'Art Ash'},
+     'expect': '&f=ACareerqq&q=ArthurAshe'},
 
     # date-related attributes (datetimes, no tour needed)
     {'tour': None, 'attrs': {'start date': datetime(2003, 12, 11)},
