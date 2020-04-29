@@ -6,9 +6,9 @@ import unicodedata
 from better_abc import ABC, abstractmethod#, abstract_attribute
 from bs4 import BeautifulSoup
 #from collections import Counter
-from PyQt5.QtCore import pyqtSignal, QEventLoop, QTimer, QUrl
-from PyQt5.QtWidgets import QApplication
-from PyQt5.QtWebEngineWidgets import QWebEnginePage#, QWebEngineView
+from qtpy.QtCore import QEventLoop, QTimer, QUrl, Signal#, pyqtSignal
+from qtpy.QtWidgets import QApplication
+from qtpy.QtWebEngineWidgets import QWebEnginePage
 
 
 _app = QApplication(sys.argv) # must be defined before instantiating a QObject
@@ -30,8 +30,8 @@ class LoadAndInteract(QWebEnginePage, ABC, metaclass=_LoadAndInteractMeta):
 
     This is an abstract base class defined such that any children must include a
     self.on_load_finish() method that ends with a call to
-    self.kill_qt_event_loop() in order to properly terminate PyQt's connection
-    to the page once the interaction is over.
+    self.kill_qt_event_loop() in order to properly terminate the web connection
+    once the interaction is complete.
 
     Arguments
     ---------
@@ -129,7 +129,7 @@ class NameCheck(LoadAndInteract):
     triggering a JS change event: https://stackoverflow.com/q/5963056/
     '''
     # should max_att be an argument?
-    toHtmlFinished = pyqtSignal()
+    toHtmlFinished = Signal()
 
     def __init__(self, name, tour, url=HOME_URL, load_images=False):
         self.names = self.ready_names(name)
@@ -320,7 +320,7 @@ class QueryData(LoadAndInteract):
     triggering a JS change event: https://stackoverflow.com/q/5963056/
     '''
     # should max_att be an argument?
-    toHtmlFinished = pyqtSignal()
+    toHtmlFinished = Signal()
 
     def __init__(self, url, tour, load_images=False):
         self.tour = self.ready_tour(tour)
