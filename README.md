@@ -1,4 +1,6 @@
 ## `tennis_abs_api` 🎾
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ojustino/tennis-abs-api/master?filepath=query_examples.ipynb)
+[![Build Status](https://travis-ci.org/ojustino/tennis-abs-api.svg?branch=master)](https://travis-ci.com/github/ojustino/tennis-abs-api/)
 
 A Python API for querying Jeff Sackmann's
 [Tennis Abstract](http://www.tennisabstract.com/) website, fetching historical

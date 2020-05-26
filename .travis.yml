@@ -1,0 +1,38 @@
+# python isn't supported with macOS option, so choose a different one
+# (it doesn't end up mattering since the script will carry out needed installs)
+language: c
+os:
+  - linux
+  - osx
+  #- windows # revisit once windows has GUI support so PyQt5 is usable
+dist: xenial # ubuntu 16.04; only applies to linux
+env:
+  global:
+    # more about these environment vars: https://github.com/astropy/ci-helpers
+    - SETUP_XVFB=True # needed for headless browsing with PyQt5
+    # other strategies: # https://docs.travis-ci.com/user/gui-and-headless-browsers/#Using-xvfb-to-Run-Tests-That-Require-a-GUI
+    #- PIP_DEPENDENCIES # hopefully taken care of by installing setup.py
+    - MAIN_CMD='pip install -r binder/requirements.txt' # -vvv'
+    #- MAIN_CMD='python setup.py install' # after packaging is complete
+    - TEST_CMD='pytest' #-s' # increases pytest's verbosity
+  matrix:
+    - PYTHON_VERSION=3.6.8
+    - PYTHON_VERSION=3.7.3
+    - PYTHON_VERSION=3.8.3
+    # with windows, add PATH=/c/Python3X:/c/Python3X/Scripts:$PATH to each line
+    # (replace X with minor python version number)
+#before_install:
+  # needed with windows
+  # - if [ $TRAVIS_OS_NAME == windows ]; then choco install python --version $PYTHON_VERSION; fi
+  # - if [ $TRAVIS_OS_NAME == windows ]; then python --version; fi
+  # - if [ $TRAVIS_OS_NAME == windows ]; then python -m pip install --upgrade pip; fi
+  # - if [ $TRAVIS_OS_NAME == windows ]; then pip3 install --upgrade pytest; fi
+  # - if [ $TRAVIS_OS_NAME == windows ]; then pip3 install codecov; fi
+install:
+  # first two lines needed for ci-helpers to work
+  - git clone --depth 1 git://github.com/astropy/ci-helpers.git
+  - source ci-helpers/travis/setup_conda.sh
+script:
+  # can then use *_CMD environment variables for package installs and tests
+  - $MAIN_CMD
+  - $TEST_CMD
