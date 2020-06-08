@@ -1,10 +1,10 @@
 # required packages
 numpy>=1.17
-pandas>=1.0
+pandas==1.0.0
 beautifulsoup4==4.7.1
 lxml==4.3.0
-PyQt5==5.11.3
-qtpy==1.8.0
+selenium==3.141.0
+webdriverdownloader==1.1.0.3
 
 # useful packages for notebook
 matplotlib>=3

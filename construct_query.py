@@ -3,6 +3,7 @@ import numpy as np
 import re
 import pandas as pd
 
+from bs4 import BeautifulSoup
 from execute_query import NameCheck, QueryData
 from validate_attrs import ValidateURLAttrs
 
@@ -246,28 +247,28 @@ class DownloadStats:
             A list of HTML tables retrieved from the query.
         '''
         # ensure that we received tables -- if not, report what happened
-        test = html_tables[0]
-        if (test is None) or (test.contents == []):
+        test = BeautifulSoup(html_tables[0], features='lxml')
+        #if (test is None) or (test.contents == []):
+        if test.contents == []:
             raise ValueError(
                 'Your query returned a blank page. The package likely '
                 'produced an invalid URL. Try another search and open an '
                 'issue about these filters in the repository, if you may.')
-        elif test.name == 'p':
+        elif test.find('p'):
             raise ValueError('Your filters produced no matches. '
                              'Try making them less stringent?')
-        elif test.name != 'table':
+        elif not test.find('table'):
             raise ValueError(
                 'Unexpected result on website. Something likely failed '
                 'inside this package. Try a different query and open an '
                 'issue about these filters in the repository, if you may.')
 
         # convert the table html strings into (at least two) DataFrames
-        table_strs = [tab.decode() for tab in html_tables]
-        table_dfs = [pd.read_html(tab).pop() for tab in table_strs]
+        table_dfs = [pd.read_html(tab).pop() for tab in html_tables]
 
-        # merge the DataFrames. pd.merge only takes two, so if there are
-        # more, use ft.reduce use it in a chain
-        data = ft.reduce(pd.merge, table_dfs)
+        # merge the DataFrames. pd.merge only takes two, so if there are more,
+        # use ft.reduce to chain the calls and partial to set kwargs
+        data = ft.reduce(ft.partial(pd.merge, how='inner'), table_dfs)
         data = data.iloc[:-1] # last row has an unneeded link
 
         # format NaNs consistently, including other null patterns

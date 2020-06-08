@@ -1,1 +1,7 @@
-export DISPLAY=unix$DISPLAY
+#!/usr/bin/env python3
+
+from webdriverdownloader import GeckoDriverDownloader
+gdd = GeckoDriverDownloader()
+gdd.download_and_install("v0.23.0")
+
+# will be different with PhantomJS...
