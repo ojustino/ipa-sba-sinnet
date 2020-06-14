@@ -4,7 +4,7 @@ from construct_query import DownloadStats
 from datetime import datetime
 from validate_attrs import ValidateURLAttrs
 
-# expect the entire test to take about 1 minute to run
+# expect the entire test to take ~3 minutes to run? (was 1 minute with pyqt)
 
 val_obj = ValidateURLAttrs()
 
@@ -242,7 +242,8 @@ queries = [
      'expect': (
         "Matches (2-1) > Opponent: Caroline Wozniacki; Opponent: Angelique "
         "Kerber; Time Span: 26-Jul-2013 to 09-Dec-2018 [custom]; Event: "
-        "Cincinnati, Montreal, Rome, Toronto, Toronto")},
+        "Cincinnati, Montreal, Rome, Toronto, Toronto"),
+     'browser': 'chromium'},
 
     # Serena Williams matches in the Round of 32 or Round of 16 of Premier
     # tournaments on clay or carpet between 7-8-1999 and 4-14-2010 where she
@@ -255,7 +256,8 @@ queries = [
      'expect': (
         "Matches (3-1) > Time Span: 07-Aug-1999 to 14-Apr-2010 [custom]; "
         "Surface: Clay, Carpet; Level: Premiers; Round: R16, R32; as Rank: Top "
-        "5; vs Hand: Left")},
+        "5; vs Hand: Left"),
+     'browser': 'firefox'},
 
     # Andy Murray matches where he was seeded -- and his opponent (who is not
     # Arnaud Clement or Guillermo Canas) was right-handed, shorter than him,
@@ -274,7 +276,8 @@ queries = [
         "Time Span: Career; Sets: Straights, 4-Setters; Scores: All tiebreaks; "
         "as Entry: Seeded; vs Rank: 14 to 112 [custom]; vs Curr Rank: "
         "Inactive; vs Entry: Seeded, Wild Card; vs Hand: Right; "
-        "vs Height: Shorter")},
+        "vs Height: Shorter"),
+     'browser': 'firefox'},
 
     # Using only a URL, James Blake ATP-level matches that were his third in
     # a particular event, went to 3 of 3 sets, featured a 6-1 set, and were
@@ -289,7 +292,8 @@ queries = [
      'expect': (
         "Matches (1-3) > Time Span: Career; Level: All ATP; Round: "
         "Third Match; Sets: 3 Sets (of 3); Scores: All 6-1; vs Rank: "
-        "Top 50; vs Height: Over 6'2")},
+        "Top 50; vs Height: Over 6'2"),
+     'browser': 'chromium'},
 ]
 
 def test_validation():
@@ -309,9 +313,9 @@ def test_full_queries():
     for args in queries:
         if all(key in args for key in ('player', 'expect')):
             result = DownloadStats(name=args['player'], tour=args['tour'],
-                                   attrs=args['attrs'])
+                                   browser=args['browser'], attrs=args['attrs'])
         elif all(key in args for key in ('url', 'expect')):
-            result = DownloadStats(url=args['url'])
+            result = DownloadStats(url=args['url'], browser=args['browser'])
         else:
             raise ValueError('Invalid `queries` dict.')
         assert result.title == args['expect'], 'query result mismatch!'

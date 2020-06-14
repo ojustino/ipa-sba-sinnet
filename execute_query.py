@@ -5,11 +5,9 @@ import sys
 import unicodedata
 
 from better_abc import ABC, abstractmethod#, abstract_attribute
-#from bs4 import BeautifulSoup
 #from collections import Counter
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -33,18 +31,17 @@ class LoadAndInteract(ABC):
     url : str, required
         The URL of the target webpage.
 
+    browser : str, required
+        The browser that selenium will drive headlessly to the relevant URL.
+        For now, choose between 'chromium' and 'firefox'. [default: 'chromium']
+
     load_images : boolean, required [DEPRECATED?]
         When False, prevents images on the target webpage from loading, which
         *should* decrease wait times. Need to determine whether this is possible...
     '''
-    def __init__(self, url):#, load_images):
-        # the page will be loaded via headless browsing
-        options = Options()
-        options.headless = True
-
+    def __init__(self, url, browser):#, load_images):
         # create the WebDriver instance used to browse
-        driver = webdriver.Firefox(options=options)
-        driver.set_window_size(1440, 810)
+        driver = self.choose_browser(browser)
 
         # how long (in seconds) to wait for actions on the page to execute
         bide = WebDriverWait(driver, 5)
@@ -60,6 +57,27 @@ class LoadAndInteract(ABC):
             raise e
         else:
             driver.close()
+
+    def choose_browser(self, browser):
+        if browser == 'chromium':
+            from selenium.webdriver.chrome.options import Options
+            Driver = webdriver.Chrome
+        elif browser == 'firefox':
+            from selenium.webdriver.firefox.options import Options
+            Driver = webdriver.Firefox
+        else:
+            raise ValueError('invalid browser. choose "chromium" or "firefox".')
+
+        # set browser options, which are the same for both
+        options = Options()
+        options.add_argument('--no-sandbox')
+        options.add_argument('--headless')
+        options.add_argument('--disable-extensions')
+
+        # create the WebDriver instance used to browse
+        driver = Driver(options=options)
+        driver.set_window_size(1440, 810)
+        return driver
 
     @abstractmethod
     def interact(self, driver, bide):
@@ -137,19 +155,23 @@ class NameCheck(LoadAndInteract):
         [default: 'http://www.tennisabstract.com/']
         PERHAPS SHOULDN'T BE AN ARGUMENT AND **HOME_URL** SHOULD BE A CLASS ATTR OR DEFINED IN __init__()?
 
+    browser : str, required
+        The browser that selenium will drive headlessly to the relevant URL.
+        For now, choose between 'chromium' and 'firefox'. [default: 'chromium']
+
     load_images : boolean, optional [DEPCREATED?]
         When False, prevents images on the target webpage from loading, which
         *should* decrease wait times. I hope to test whether this is the case.
         [default: False]
     '''
     # should max_wait (seconds) be an argument?
-    def __init__(self, name, tour, url=HOME_URL):#, load_images=False):
+    def __init__(self, name, tour, url=HOME_URL, browser='chromium'):#, load_images=False):
         self.names = self.ready_names(name)
         self.gender = self.ready_gender(tour)
         self.suggestions = []
 
         # load URL, retrieve matching names
-        super().__init__(url)#, load_images)
+        super().__init__(url, browser)#, load_images)
         self.name_str = self.validate_name()
 
     def ready_names(self, name):
@@ -278,20 +300,24 @@ class QueryData(LoadAndInteract):
         The chosen player's tour. Should be 'WTA' if the player is female or
         'ATP' if the player is male.
 
+    browser : str, required
+        The browser that selenium will drive headlessly to the relevant URL.
+        For now, choose between 'chromium' and 'firefox'. [default: 'chromium']
+
     load_images : boolean, optional [DEPRECATED?]
         When False, prevents images on the target webpage from loading, which
         *should* decrease wait times. I hope to test whether this is the case.
         [default: False]
     '''
     # should max_wait (seconds) be an argument?
-    def __init__(self, url, tour, load_images=False):
+    def __init__(self, url, tour, browser='chromium'):#load_images=False):
         self.tour = self.ready_tour(tour)
 
         self.html_tables = []
         self.title = None
 
         # load URL
-        super().__init__(url)#, load_images)
+        super().__init__(url, browser)#, load_images)
 
     def ready_tour(self, tour):
         tour = tour.upper()
@@ -308,6 +334,7 @@ class QueryData(LoadAndInteract):
         # reverse loss scores in table; wait for change to reflect
         print('reverse losses')
         rev_elem = 'span.revscore.likelink'
+        bide.until(EC.element_to_be_clickable((By.CSS_SELECTOR, rev_elem)))
         driver.find_element_by_css_selector(rev_elem).click()
         bide.until(EC.text_to_be_present_in_element((By.CSS_SELECTOR, rev_elem),
                                                     'Standard Scores'))

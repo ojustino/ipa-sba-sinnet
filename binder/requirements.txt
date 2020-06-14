@@ -1,10 +1,16 @@
-# required packages
+# required packages for tennis-abs-api
 numpy>=1.17
 pandas==1.0.0
 beautifulsoup4==4.7.1
 lxml==4.3.0
 selenium==3.141.0
+
+# (if needed) driver installation for firefox and chromium
 webdriverdownloader==1.1.0.3
 
-# useful packages for notebook
+# (if needed) driver installation for chrome
+#webdriver_manager==3.1.0
+#requests==2.22.0
+
+# useful packages for notebook?
 matplotlib>=3

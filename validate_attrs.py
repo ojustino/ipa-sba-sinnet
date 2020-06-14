@@ -14,7 +14,7 @@ class ValidateURLAttrs:
     the user has provided a value for their corresponding attributes.
 
     '''
-    def _validate_attrs(self, tour, **kwargs):
+    def _validate_attrs(self, tour, browser='chromium', **kwargs):
         '''
         Validates the keys and values provided by the user in
         self.generate_url()'s `attrs` argument.
@@ -28,6 +28,11 @@ class ValidateURLAttrs:
         tour : str, required
             The chosen player's tour. Should be 'WTA' if the player is female or
             'ATP' if the player is male.
+
+        browser : str, required
+            The browser that selenium will drive headlessly to the relevant URL.
+            For now, choose between 'chromium' and 'firefox'.
+            [default: 'chromium']
 
         **kwargs : optional
             The unpacked `attrs` dictionary (i.e., **attrs) from
@@ -74,9 +79,10 @@ class ValidateURLAttrs:
                 prefix = '&q=' if key == H2H_KEY else '&x='
 
                 if type(val) == str:
-                    name_str = NameCheck(val, tour).name_str
+                    name_str = NameCheck(val, tour, browser=browser).name_str
                 elif type(val) == list:
-                    names = [NameCheck(nm, tour).name_str for nm in val]
+                    names = [NameCheck(nm, tour, browser=browser).name_str
+                             for nm in val]
                     name_str = ','.join(names)
                 else:
                     raise ValueError(

@@ -1,9 +1,9 @@
-# python isn't supported with macOS option, so choose a different one
+# python isn't supported with macOS option, so choose a different language
 # (it doesn't end up mattering since the script will carry out needed installs)
 language: c
 os:
-  #- linux
-  - osx
+  - linux
+  #- osx
   #- windows # revisit once windows has GUI support so selenium is usable
 dist: xenial # ubuntu 16.04; only applies to linux
 addons:
@@ -17,12 +17,13 @@ env:
     - MAIN_CMD='pip install -r binder/requirements.txt' # -vvv'
     #- MAIN_CMD='python setup.py install' # after packaging is complete
     - TEST_CMD='pytest' #-s' # increases pytest's verbosity
-    - POST_LNX_CMD='python binder/postBuild'
-    - PRE_MAC_CMD='sh binder/travis_mac_installs.sh'
+    # - POST_LNX_CMD='python binder/postBuild'
+    # - PRE_MAC_CMD='sh binder/travis_mac_installs.sh'
+    - PRE_CMD='bash binder/travis_installs.sh'
   matrix:
     - PYTHON_VERSION=3.6.8
-    - PYTHON_VERSION=3.7.3
-    - PYTHON_VERSION=3.8.3
+    #- PYTHON_VERSION=3.7.3
+    #- PYTHON_VERSION=3.8.3
     # with windows, add PATH=/c/Python3X:/c/Python3X/Scripts:$PATH to each line
     # (replace X with minor python version number)
 #before_install:
@@ -33,7 +34,8 @@ env:
   # - if [ $TRAVIS_OS_NAME == windows ]; then pip3 install --upgrade pytest; fi
   # - if [ $TRAVIS_OS_NAME == windows ]; then pip3 install codecov; fi
 before_install:
-  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then $PRE_MAC_CMD; fi
+  #- if [ "$TRAVIS_OS_NAME" == "osx" ]; then $PRE_MAC_CMD; fi
+  - $PRE_CMD
 install:
   # first two lines needed for ci-helpers to work
   - git clone --depth 1 git://github.com/astropy/ci-helpers.git
@@ -41,6 +43,6 @@ install:
 script:
   # can then use *_CMD environment variables for package installs and tests
   - $MAIN_CMD
-  - if [ $TRAVIS_OS_NAME == linux ]; then $POST_LNX_CMD; fi
+  #- if [ $TRAVIS_OS_NAME == linux ]; then $POST_LNX_CMD; fi
   # brew installs live in in /usr/local/bin; browser executable in /Applications
   - $TEST_CMD

@@ -1,5 +1,5 @@
 firefox
-#chromium-browser
+chromium-browser
 
 #python3.7 # must be <=3.7 for repo2docker
 #python3-pip

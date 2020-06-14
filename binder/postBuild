@@ -1,7 +1,6 @@
-#!/usr/bin/env python3
+#!/bin/bash
+# In Binder Docker images, run *after* apt-get and pip installs are complete.
 
-from webdriverdownloader import GeckoDriverDownloader
-gdd = GeckoDriverDownloader()
-gdd.download_and_install("v0.23.0")
-
-# will be different with PhantomJS...
+# Use Python to install the proper drivers for selenium to commandeer
+# chromium or firefox.
+python binder/binder_installs.py "$BROWSERX"
