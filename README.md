@@ -19,10 +19,12 @@ Skills used:
 <br>
 _(bear with me; I'm job-hunting)_
 
-Headless browsing with `PyQt5`, HTML DOM manipulation, event triggering in
-JavaScript, data(Frame) manipulation with `pandas`, testing with `pytest`,
-object-oriented programming, multiple inheritance, regular expressions, and
-more.
+Headless browsing in Python with ~~`PyQt5`~~ `selenium`, HTML DOM manipulation,
+JavaScript event triggering, cross-browser (Chromium, Firefox) and cross-OS
+(Mac, Ubuntu) support, data(Frame) manipulation with `pandas`, cloud-based
+Jupyter environment creation with Binder and Docker, testing and continuous
+integration with `pytest` and Travis, object-oriented programming, regular
+expressions, and more.
 
 ### Example usage:
 

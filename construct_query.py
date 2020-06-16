@@ -3,6 +3,7 @@ import numpy as np
 import re
 import pandas as pd
 
+from bs4 import BeautifulSoup
 from execute_query import NameCheck, QueryData
 from validate_attrs import ValidateURLAttrs
 
@@ -31,19 +32,22 @@ class ConstructURL(ValidateURLAttrs):
         The chosen player's tour. Should be 'WTA' if the player is female or
         'ATP' if the player is male.
 
+    browser : str, required
+        The browser that selenium will drive headlessly to the relevant URL.
+        For now, choose between 'chromium' and 'firefox'. [default: 'chromium']
+
     attrs : dict, optional
         A dictionary of the attributes that will be used to filter the match
         data once the actual query takes place. Only specific keys and values
         are allowed; **future documentation** will give a full accounting.
-
     '''
-    def __init__(self, name, tour, attrs={}):
+    def __init__(self, name, tour, browser='chromium', attrs={}):
         # check name first
-        name_obj = NameCheck(name, tour)
+        name_obj = NameCheck(name, tour, browser=browser)
         name_str = name_obj.name_str
 
         self.name = self.spaced_name_str(name_str)
-        self.URL = self.generate_url(name_str, tour, attrs)
+        self.URL = self.generate_url(name_str, tour, browser, attrs)
 
     @staticmethod
     def spaced_name_str(name_str):
@@ -80,7 +84,7 @@ class ConstructURL(ValidateURLAttrs):
 
         return name_str
 
-    def generate_url(self, name_str, tour, attrs={}):
+    def generate_url(self, name_str, tour, browser, attrs={}):
         '''
         Create the matching URL for a specific query to a player's match data
         page on Tennis Abstract by translating the user's chosen name and
@@ -97,6 +101,11 @@ class ConstructURL(ValidateURLAttrs):
         tour : str, required
             The chosen player's tour. Should be 'WTA' if the player is female or
             'ATP' if the player is male.
+
+        browser : str, required
+            The browser that selenium will drive headlessly to the relevant URL.
+            For now, choose between 'chromium' and 'firefox'.
+             [default: 'chromium']
 
         attrs : dict, optional
             A dictionary of the attributes that will be used to filter the match
@@ -122,7 +131,7 @@ class ConstructURL(ValidateURLAttrs):
         query_url += name_str
 
         # then, add query (or ask for whole career data if attrs is empty)
-        query_url += self._validate_attrs(tour, **attrs)
+        query_url += self._validate_attrs(tour, browser=browser, **attrs)
 
         return query_url
 
@@ -166,14 +175,19 @@ class DownloadStats:
     url : str, optional
         The URL to a Tennis Abstract player match data page. *This argument
         makes the class disregard the `name` and `attrs` arguments.*
+
+    browser : str, required
+        The browser that selenium will drive headlessly to the relevant URL.
+        For now, choose between 'chromium' and 'firefox'. [default: 'chromium']
     '''
-    def __init__(self, name=None, tour='', attrs={}, url=None):
+    def __init__(self, name=None, tour='', attrs={},
+                 url=None, browser='chromium'):
         # either make sure a proper tour was provided or infer tour from URL
         self.tour = self._validate_tour(tour, url)
 
         if url is None:
             # generate the query's URL; save player's name as shown on the site
-            url_obj = ConstructURL(name, self.tour, attrs)
+            url_obj = ConstructURL(name, self.tour, browser=browser,attrs=attrs)
             self.URL = url_obj.URL
             self.name = url_obj.name
         else:
@@ -185,7 +199,8 @@ class DownloadStats:
             self.name = ConstructURL.spaced_name_str(formatted_name)
 
         # make the query. then, format the results and save the table title
-        query = QueryData(self.URL, self.tour)
+        self.browser = browser
+        query = QueryData(self.URL, self.tour, self.browser)
         self.title = query.title
         self.match_data = self.merge_and_edit_tables(query.html_tables)
 
@@ -246,28 +261,28 @@ class DownloadStats:
             A list of HTML tables retrieved from the query.
         '''
         # ensure that we received tables -- if not, report what happened
-        test = html_tables[0]
-        if (test is None) or (test.contents == []):
+        test = BeautifulSoup(html_tables[0], features='lxml')
+        #if (test is None) or (test.contents == []):
+        if test.contents == []:
             raise ValueError(
                 'Your query returned a blank page. The package likely '
                 'produced an invalid URL. Try another search and open an '
                 'issue about these filters in the repository, if you may.')
-        elif test.name == 'p':
+        elif test.find('p'):
             raise ValueError('Your filters produced no matches. '
                              'Try making them less stringent?')
-        elif test.name != 'table':
+        elif not test.find('table'):
             raise ValueError(
                 'Unexpected result on website. Something likely failed '
                 'inside this package. Try a different query and open an '
                 'issue about these filters in the repository, if you may.')
 
         # convert the table html strings into (at least two) DataFrames
-        table_strs = [tab.decode() for tab in html_tables]
-        table_dfs = [pd.read_html(tab).pop() for tab in table_strs]
+        table_dfs = [pd.read_html(tab).pop() for tab in html_tables]
 
-        # merge the DataFrames. pd.merge only takes two, so if there are
-        # more, use ft.reduce use it in a chain
-        data = ft.reduce(pd.merge, table_dfs)
+        # merge the DataFrames. pd.merge only takes two, so if there are more,
+        # use ft.reduce to chain the calls and partial to set kwargs
+        data = ft.reduce(ft.partial(pd.merge, how='inner'), table_dfs)
         data = data.iloc[:-1] # last row has an unneeded link
 
         # format NaNs consistently, including other null patterns

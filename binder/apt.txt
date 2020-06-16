@@ -1,49 +1,5 @@
-# working for now: docker run -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY -ti -p 9999:8888 r2d-2e1590807547
-# jupyter-repo2docker --image_name CHOOSENAME -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY -p 9999:8888 .
-python3.7 # must be <=3.7 for repo2docker
-python3-pip
-qt5-default
+firefox
+chromium-browser
 
-# need an x server? https://stackoverflow.com/a/13215192
-#xvfb
-xorg
-openbox
-
-bison
-build-essential
-gperf
-flex
-libasound2-dev
-libbz2-dev
-libcap-dev
-libcups2-dev
-libdrm-dev
-libegl1-mesa-dev
-libgcrypt11-dev
-libnss3-dev
-libpci-dev libpulse-dev
-libudev-dev
-libxtst-dev
-gyp
-ninja-build
-
-libssl-dev
-libxcursor-dev
-libxcomposite-dev
-libxdamage-dev
-libxrandr-dev
-libfontconfig1-dev
-libxss-dev
-libsrtp0-dev
-libwebp-dev
-libjsoncpp-dev
-libopus-dev
-libminizip-dev
-libavutil-dev
-libavformat-dev
-libavcodec-dev
-libevent-dev
-
-# previous attempts
-#libx11-xcb-dev
-#mesa-common-dev
+#python3.7 # must be <=3.7 for repo2docker
+#python3-pip

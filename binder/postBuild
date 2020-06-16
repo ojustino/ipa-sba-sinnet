@@ -1,1 +1,6 @@
-export DISPLAY=unix$DISPLAY
+#!/bin/bash
+# In Binder Docker images, run *after* apt-get and pip installs are complete.
+
+# Use Python to install the proper drivers for selenium to commandeer
+# chromium or firefox.
+python binder/binder_installs.py "$BROWSERX"
