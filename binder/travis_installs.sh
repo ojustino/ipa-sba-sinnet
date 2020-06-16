@@ -6,6 +6,7 @@ pwd
 # download and unpack chromedriver
 if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     wget --no-verbose -O /tmp/chromedriver-64b.zip https://chromedriver.storage.googleapis.com/81.0.4044.138/chromedriver_linux64.zip
+    # use the URL below if you switch to bionic (ubuntu 18.04) in .travis.yml
 elif [ "$TRAVIS_OS_NAME" == "osx" ]; then
     wget --no-verbose -O /tmp/chromedriver-64b.zip https://chromedriver.storage.googleapis.com/83.0.4103.39/chromedriver_mac64.zip
 else
@@ -32,15 +33,14 @@ export PATH="$PATH:~/bin/"
 
 # install (Linux)/download and unpack (Mac) chromium
 if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-    # travis' linux build comes with chrome pre-installed, so get rid of it
-    # before installing chromium
+    # unlike docker, travis' linux build comes with chrome pre-installed,
+    # so get rid of it before installing chromium
     ls /usr/bin/go*
     echo "-----------------------"
     sudo apt-get purge chromium-browser google-chrome-stable
     sudo apt-get -q clean # have to clean and update or install errors out
     sudo apt-get -q update
     sudo apt-get --yes -qq install chromium-browser
-    #export PATH="$PATH:/usr/lib/"
     chromium-browser --version
 elif [ "$TRAVIS_OS_NAME" == "osx" ]; then
     wget --no-verbose -O /tmp/chromium-83.0.4103.97.zip https://github.com/macchrome/macstable/releases/download/v83.0.4103.97-r756066-Ungoogled-macOS/Chromium.app.ungoogled-83.0.4103.97.zip
