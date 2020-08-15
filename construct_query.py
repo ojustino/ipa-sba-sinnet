@@ -2,6 +2,7 @@ import functools as ft
 import numpy as np
 import re
 import pandas as pd
+import warnings
 
 from bs4 import BeautifulSoup
 from execute_query import NameCheck, QueryData
@@ -151,8 +152,7 @@ class DownloadStats:
 
     This class' functionality was originally joined with QueryData's, but they
     are separated now so that the user-facing class (this one) doesn't carry
-    all of PyQt5's QWebEnginePage-related attributes and methods. They're not
-    needed after we've retrieved the data tables from Tennis Abstract.
+    unneeded attributes and methods after retrieving the data tables.
 
     Arguments
     ---------
@@ -315,6 +315,13 @@ class DownloadStats:
 
         data = data[all_cols]
 
+        # change type of 'Date' column from str to actual dates/Timestamps
+        data['Date'] = data['Date'].apply(lambda d:
+                                          pd.to_datetime(d.replace('‑', '-'),
+                                                         format='%d-%b-%Y'))
+        # (the dates in the downloaded table use ‑/U+2011 instead of -/U+002D as
+        #  hyphens, so need to replace those before attempting the conversion)
+
         # change dtype of columns w/ percentages as strings
         for col in data.columns:
             valid_entries = data[col].dropna()
@@ -373,7 +380,6 @@ class DownloadStats:
                             + all_cols[old_col_at+1 : -len(new_cols)])
                 data = data[all_cols]
             else:
-                # import warnings!
                 warnings.warn(f"Unexpected break point column name '{col}'")
 
         # finish changing 'BPSaved' to 'Brkn' (i.e., 'BPLost')

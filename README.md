@@ -1,6 +1,8 @@
 ## `tennis_abs_api` 🎾
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ojustino/tennis-abs-api/master?filepath=query_examples.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ojustino/tennis-abs-api/master?filepath=walkthrough.ipynb)
 [![Build Status](https://travis-ci.org/ojustino/tennis-abs-api.svg?branch=master)](https://travis-ci.com/github/ojustino/tennis-abs-api/)
+<br>
+*( ^ click above to run in the cloud)*
 
 A Python API for querying Jeff Sackmann's
 [Tennis Abstract](http://www.tennisabstract.com/) website, fetching historical
@@ -29,7 +31,7 @@ expressions, and a lot of persistence.
 ### Example usage:
 
 Read through
-[`query_examples.ipynb`](https://github.com/ojustino/tennis-abs-api/blob/master/query_examples.ipynb)
+[`walkthrough.ipynb`](https://github.com/ojustino/tennis-abs-api/blob/master/walkthrough.ipynb)
 for a quick introduction.
 
 ### Installation ***(coming soon)***:
