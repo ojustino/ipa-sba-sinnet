@@ -5,7 +5,7 @@ pwd
 
 # download and unpack chromedriver
 if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-    wget --no-verbose -O /tmp/chromedriver-64b.zip https://chromedriver.storage.googleapis.com/81.0.4044.138/chromedriver_linux64.zip
+    wget --no-verbose -O /tmp/chromedriver-64b.zip https://chromedriver.storage.googleapis.com/84.0.4147.30/chromedriver_linux64.zip
     # use the URL below if you switch to bionic (ubuntu 18.04) in .travis.yml
 elif [ "$TRAVIS_OS_NAME" == "osx" ]; then
     wget --no-verbose -O /tmp/chromedriver-64b.zip https://chromedriver.storage.googleapis.com/83.0.4103.39/chromedriver_mac64.zip
