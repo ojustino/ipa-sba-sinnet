@@ -38,9 +38,12 @@ class ConstructURL(ValidateURLAttrs):
         For now, choose between 'chromium' and 'firefox'. [default: 'chromium']
 
     attrs : dict, optional
-        A dictionary of the attributes that will be used to filter the match
-        data once the actual query takes place. Only specific keys and values
-        are allowed; **future documentation** will give a full accounting.
+        The attributes that will be used to filter the match data once the
+        actual query takes place. Only specific keys and values are
+        allowed; find a full accounting locally in `attrs_docs.md`
+        or in rich format online at:
+        https://github.com/ojustino/tennis-abs-api/blob/master/attrs_docs.md
+
     '''
     def __init__(self, name, tour, browser='chromium', attrs={}):
         # check name first
@@ -109,9 +112,11 @@ class ConstructURL(ValidateURLAttrs):
              [default: 'chromium']
 
         attrs : dict, optional
-            A dictionary of the attributes that will be used to filter the match
-            data once the actual query takes place. Only specific keys and
-            values are allowed; **future documentation** will give more detail.
+            The attributes that will be used to filter the match data once the
+            actual query takes place. Only specific keys and values are
+            allowed; find a full accounting locally in `attrs_docs.md`
+            or in rich format online at:
+            https://github.com/ojustino/tennis-abs-api/blob/master/attrs_docs.md
         '''
         query_url = 'http://www.tennisabstract.com/cgi-bin/'
 
@@ -120,7 +125,7 @@ class ConstructURL(ValidateURLAttrs):
         if tour == 'ATP':
             gender = ''
         elif tour == 'WTA':
-            gender = 'w' if tour == 'WTA' else ''
+            gender = 'w'
         else:
             raise ValueError('Unsupported tour.')
 
@@ -168,9 +173,11 @@ class DownloadStats:
         'ATP' if the player is male. *Required if you use the `name` argument.*
 
     attrs : dict, optional
-        A dictionary of the attributes that will be used to filter the match
-        data once the actual query takes place. Only specific keys and values
-        are allowed; **future documentation** will give a full accounting.
+        The attributes that will be used to filter the match data once the
+        actual query takes place. Only specific keys and values are
+        allowed; find a full accounting locally in `attrs_docs.md`
+        or in rich format online at:
+        https://github.com/ojustino/tennis-abs-api/blob/master/attrs_docs.md
 
     url : str, optional
         The URL to a Tennis Abstract player match data page. *This argument

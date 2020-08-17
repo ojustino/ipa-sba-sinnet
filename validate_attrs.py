@@ -247,7 +247,6 @@ class ValidateURLAttrs:
             The surface upon which a match was played.
         '''
         value = value.lower()
-
         code = ('0' if value == 'hard' else '1' if value == 'clay'
                 else '2' if value == 'grass' else '3' if value == 'carpet'
                 else None)
@@ -889,7 +888,7 @@ class ValidateURLAttrs:
         sets : list, required
             The list of set strings.
         '''
-        # puzzling out valid combnations and their combind codes...
+        # puzzling out valid combnations and their combined codes...
         # straight: deciding (01), 4/5 (04), 5/5 (05), 3/3 (08)
         # deciding: 3/5 (13), 4/5 (14), 2/3 (17)
         # best of 5: 2/3 (27), 3/3 (28)
