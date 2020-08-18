@@ -2,6 +2,7 @@ import functools as ft
 import numpy as np
 import re
 import pandas as pd
+import warnings
 
 from bs4 import BeautifulSoup
 from execute_query import NameCheck, QueryData
@@ -37,9 +38,12 @@ class ConstructURL(ValidateURLAttrs):
         For now, choose between 'chromium' and 'firefox'. [default: 'chromium']
 
     attrs : dict, optional
-        A dictionary of the attributes that will be used to filter the match
-        data once the actual query takes place. Only specific keys and values
-        are allowed; **future documentation** will give a full accounting.
+        The attributes that will be used to filter the match data once the
+        actual query takes place. Only specific keys and values are
+        allowed; find a full accounting locally in `attrs_docs.md`
+        or in rich format online at:
+        https://github.com/ojustino/tennis-abs-api/blob/master/attrs_docs.md
+
     '''
     def __init__(self, name, tour, browser='chromium', attrs={}):
         # check name first
@@ -108,9 +112,11 @@ class ConstructURL(ValidateURLAttrs):
              [default: 'chromium']
 
         attrs : dict, optional
-            A dictionary of the attributes that will be used to filter the match
-            data once the actual query takes place. Only specific keys and
-            values are allowed; **future documentation** will give more detail.
+            The attributes that will be used to filter the match data once the
+            actual query takes place. Only specific keys and values are
+            allowed; find a full accounting locally in `attrs_docs.md`
+            or in rich format online at:
+            https://github.com/ojustino/tennis-abs-api/blob/master/attrs_docs.md
         '''
         query_url = 'http://www.tennisabstract.com/cgi-bin/'
 
@@ -119,7 +125,7 @@ class ConstructURL(ValidateURLAttrs):
         if tour == 'ATP':
             gender = ''
         elif tour == 'WTA':
-            gender = 'w' if tour == 'WTA' else ''
+            gender = 'w'
         else:
             raise ValueError('Unsupported tour.')
 
@@ -151,8 +157,7 @@ class DownloadStats:
 
     This class' functionality was originally joined with QueryData's, but they
     are separated now so that the user-facing class (this one) doesn't carry
-    all of PyQt5's QWebEnginePage-related attributes and methods. They're not
-    needed after we've retrieved the data tables from Tennis Abstract.
+    unneeded attributes and methods after retrieving the data tables.
 
     Arguments
     ---------
@@ -168,9 +173,11 @@ class DownloadStats:
         'ATP' if the player is male. *Required if you use the `name` argument.*
 
     attrs : dict, optional
-        A dictionary of the attributes that will be used to filter the match
-        data once the actual query takes place. Only specific keys and values
-        are allowed; **future documentation** will give a full accounting.
+        The attributes that will be used to filter the match data once the
+        actual query takes place. Only specific keys and values are
+        allowed; find a full accounting locally in `attrs_docs.md`
+        or in rich format online at:
+        https://github.com/ojustino/tennis-abs-api/blob/master/attrs_docs.md
 
     url : str, optional
         The URL to a Tennis Abstract player match data page. *This argument
@@ -315,6 +322,13 @@ class DownloadStats:
 
         data = data[all_cols]
 
+        # change type of 'Date' column from str to actual dates/Timestamps
+        data['Date'] = data['Date'].apply(lambda d:
+                                          pd.to_datetime(d.replace('‑', '-'),
+                                                         format='%d-%b-%Y'))
+        # (the dates in the downloaded table use ‑/U+2011 instead of -/U+002D as
+        #  hyphens, so need to replace those before attempting the conversion)
+
         # change dtype of columns w/ percentages as strings
         for col in data.columns:
             valid_entries = data[col].dropna()
@@ -373,7 +387,6 @@ class DownloadStats:
                             + all_cols[old_col_at+1 : -len(new_cols)])
                 data = data[all_cols]
             else:
-                # import warnings!
                 warnings.warn(f"Unexpected break point column name '{col}'")
 
         # finish changing 'BPSaved' to 'Brkn' (i.e., 'BPLost')

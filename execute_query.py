@@ -38,8 +38,13 @@ class LoadAndInteract(ABC):
     load_images : boolean, required [DEPRECATED?]
         When False, prevents images on the target webpage from loading, which
         *should* decrease wait times. Need to determine whether this is possible...
+
+    verbose : boolean, optional
+        Controls whether or not to print debugging information. [default: False]
     '''
-    def __init__(self, url, browser):#, load_images):
+    def __init__(self, url, browser, verbose=False):#, load_images):
+        self._vb = verbose
+
         # create the WebDriver instance used to browse
         driver = self.choose_browser(browser)
 
@@ -48,7 +53,7 @@ class LoadAndInteract(ABC):
         # PERHAPS WAIT TIME SHOULD BE A KWARG?
 
         # load and interact with the page; close connection on completion/error
-        print('LoadAndInteract')
+        self._pr('LoadAndInteract')
         driver.get(url)
         try:
             self.interact(driver, bide)
@@ -57,6 +62,9 @@ class LoadAndInteract(ABC):
             raise e
         else:
             driver.close()
+
+    def _pr(self, *args, **kwargs):
+        print(*args, **kwargs) if self._vb else None
 
     def choose_browser(self, browser):
         if browser == 'chromium':
@@ -194,7 +202,7 @@ class NameCheck(LoadAndInteract):
         return gender
 
     def interact(self, driver, bide):
-        print('interact')
+        self._pr('interact')
         # changes value in player search box, then create and trigger a keydown
         # event to reveal autocomplete suggestions
         input_js = """
@@ -228,7 +236,7 @@ class NameCheck(LoadAndInteract):
             }"""
 
         for nm in self.names:
-            print('search name')
+            self._pr('search name')
             # enter the current name in the search bar
             driver.execute_script(input_js, nm)
 
@@ -251,7 +259,7 @@ class NameCheck(LoadAndInteract):
         webpage interaction is complete. Throws an error if there's no match
         or more than one.
         '''
-        print('validate_name')
+        self._pr('validate_name')
         # gather suggestion(s) that matched each name
         name_set = ft.reduce(set.intersection, self.suggestions)
 
@@ -329,10 +337,10 @@ class QueryData(LoadAndInteract):
     def interact(self, driver, bide):
         # fetch original stats table on page, toggle its stats by simulating
         # clicks on one or more pseudo-links, then save the new table(s)
-        print('interact')
+        self._pr('interact')
 
         # reverse loss scores in table; wait for change to reflect
-        print('reverse losses')
+        self._pr('reverse losses')
         rev_elem = 'span.revscore.likelink'
         bide.until(EC.element_to_be_clickable((By.CSS_SELECTOR, rev_elem)))
         driver.find_element_by_css_selector(rev_elem).click()
@@ -364,7 +372,7 @@ class QueryData(LoadAndInteract):
         # GIVE EC METHODS AN ERROR MESSAGE FOR WHEN CONDITION IS NOT MET ON TIME
         # ...
         for cl in classes:
-            print('click span')
+            self._pr('click span')
             # simulate a click on the current element
             curr_elem = 'span.' + cl# + '.likelink'
             driver.find_element_by_css_selector(curr_elem).click()
@@ -386,7 +394,7 @@ class QueryData(LoadAndInteract):
             self.html_tables.append(self.search_table(driver))
 
     def search_table(self, driver):
-        #print('search_table')
+        #self._pr('search_table')
         try:
             table = driver.find_element_by_id('matches')
             return table.get_attribute('outerHTML')
