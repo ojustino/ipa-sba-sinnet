@@ -1,0 +1,4 @@
+# prevent Jupyter Notebooks from dominating language stats
+# https://github.com/github/linguist#using-gitattributes
+*.ipynb linguist-language=Python
+walkthrough.ipynb linguist-language=Jupyter-Notebook
