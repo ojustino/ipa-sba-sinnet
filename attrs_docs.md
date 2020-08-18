@@ -21,18 +21,18 @@ Both **`DownloadStats`** and **`ConstructURL`** can take a **dictionary-typed ke
 - The surface(s) upon which eligible matches were played. Value(s) can be **'hard'**, **'clay'**, **'grass'**, and/or **'carpet'**.
 
 ### `'level'` : *str, or list of str*
-- The tier(s) of tournaments at which eligible matches were played. Value(s) can be **'Grand Slam'**, **'Masters'** (for ATP/male players), **'Premier'** (for WTA/female players), or **'All Tour'** (excluding matches in minor leagues)
+- The tier(s) of tournaments at which eligible matches were played. Value(s) can be **'Grand Slam'**, **'Masters'** (for ATP/male players), **'Premier'** (for WTA/female players), or **'All Tour'** (excluding matches in minor leagues).
 
 ### `'event'` : *str, or list of str*
 - The name(s) of eligible tournaments. Mostly features classic/major tournaments and joint ATP/WTA events. Value(s) can be:
     - **'Australian Open'**
-    - **'Roland Garros' or 'French Open'**
+    - **'Roland Garros'** or **'French Open'**
     - **'Wimbledon'**
     - **'US Open'**
     - **'Tour Finals'**
         - *Note: May not return matching results for the 2014 and 2015 WTA Finals. The WTA's Avon (1979-82) and Virginia Slims (1972-78) tour finals may be missing or incomplete.*
     - **'Olympics'**
-    - **'Davis Cup'** (ATP) *or* **'Fed Cup'** (WTA)
+    - **'Davis Cup'** (ATP) or **'Fed Cup'** (WTA)
     - **'Indian Wells'**
     - **'Miami'**
     - **'Madrid'**
@@ -75,7 +75,7 @@ Both **`DownloadStats`** and **`ConstructURL`** can take a **dictionary-typed ke
 - Eligible matches must include at least one set with that matches a score condition. Build conditions with:
     1. **'won'** or **'lost'** or **'all'** (includes both sets won and lost by a certain score)
     2. a score from **'6-0'**, **'6-1'**, **'7-5'**, or **'7-6'**/**'tiebreak'**,
-- *(examples would be 'all 7-6', ['lost 6-0', 'lost 6-1'], and so on)*
+- *(examples would be 'all 7-6' for all matches featuring at least one tiebreak; ['lost 6-0', 'lost 6-1'] for all matches where the player lost at least one set 6-0 or 6-1; etc.)*
 
 ### `'as rank'` : *str*
 - The player's tour ranking at the time of eligible matches. The value can be:
