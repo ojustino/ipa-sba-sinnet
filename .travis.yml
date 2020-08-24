@@ -1,6 +1,6 @@
-# run one build per PR push AND one build per merge
+# run one build per PR push AND one build per merge while allowing cron jobs
 # https://stackoverflow.com/a/56567025
-if: (type = push AND branch = master) OR (type = pull_request)
+if: (type = push AND branch = master) OR (type = pull_request) OR (type = cron)
 # python isn't supported with macOS option, so choose a different language
 # (it doesn't end up mattering since the script will carry out needed installs)
 language: c
