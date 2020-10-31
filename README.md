@@ -1,12 +1,14 @@
 ## `tennis_abs_api` 🎾
-<a href="https://mybinder.org/v2/gh/ojustino/tennis-abs-api/master?filepath=walkthrough.ipynb" target="_blank">
+<p>
+  <a href="https://mybinder.org/v2/gh/ojustino/tennis-abs-api/master?filepath=walkthrough.ipynb" target="_blank">
     <img src="https://mybinder.org/badge_logo.svg"/>
-</a>
-<a href="https://mybinder.org/v2/gh/ojustino/tennis-abs-api/master?filepath=walkthrough.ipynb" target="_blank">
+  </a>
+  <a href="https://travis-ci.com/github//ojustino/tennis-abs-api/" target="_blank">
     <img src="https://travis-ci.org/ojustino/tennis-abs-api.svg?branch=master"/>
-</a>
-
-*( ⬆️ click above to run in the cloud)*
+  </a>
+  <br />
+  <i> ( ⬆️ click above to run in the cloud) </i>
+</p>
 
 A Python API for querying Jeff Sackmann's
 <a href="http://www.tennisabstract.com/" target="_blank">Tennis Abstract</a>
