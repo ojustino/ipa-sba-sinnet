@@ -292,6 +292,9 @@ class DownloadStats:
         data = ft.reduce(ft.partial(pd.merge, how='inner'), table_dfs)
         data = data.iloc[:-1] # last row has an unneeded link
 
+        # if necessary, drop "Live Scores" row for scheduled, unplayed matches
+        data = data.iloc[1:] if data['Score'][0] == 'Live Scores' else data
+
         # format NaNs consistently, including other null patterns
         data.fillna(np.nan)
         data = data.replace(['^-$', r'-.*\(\d*/\d*\)'], np.nan, regex=True)
