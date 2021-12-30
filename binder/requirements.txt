@@ -2,7 +2,7 @@
 numpy>=1.17
 pandas==1.1.5
 beautifulsoup4==4.7.1
-lxml==4.6.2
+lxml==4.6.5
 selenium==3.141.0
 
 # (if needed) driver installation for firefox and chromium
