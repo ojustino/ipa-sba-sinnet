@@ -4,7 +4,7 @@ from webdriverdownloader import ChromeDriverDownloader, GeckoDriverDownloader
 
 # install chrom(e|ium) webdriver to match default Linux chromium major version
 cdd = ChromeDriverDownloader()
-chromiumdriver, chromiumpath = cdd.download_and_install("87.0.4280.20")
+chromiumdriver, chromiumpath = cdd.download_and_install("95.0.4638.69")
 print(chromiumdriver, chromiumpath)
 
 # install firefox webdriver

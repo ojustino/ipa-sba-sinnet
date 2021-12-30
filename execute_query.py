@@ -22,7 +22,7 @@ class LoadAndInteract(ABC):
     triggering JavaScript events), and save elements of interest from the page.
 
     This is an abstract base class defined such that any children must include a
-    self.inetract() method that defines the actual interactions that will take
+    self.interact() method that defines the actual interactions that will take
     place.
 
     Arguments
