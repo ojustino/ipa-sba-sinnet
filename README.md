@@ -3,8 +3,13 @@
   <a href="https://mybinder.org/v2/gh/ojustino/tennis-abs-api/30903c?filepath=walkthrough.ipynb" target="_blank">
     <img src="https://mybinder.org/badge_logo.svg"/>
   </a>
+  <!--
   <a href="https://travis-ci.com/github//ojustino/tennis-abs-api/" target="_blank">
     <img src="https://travis-ci.org/ojustino/tennis-abs-api.svg?branch=master"/>
+  </a>
+-->
+  <a href="" target="_blank">
+    <img src="https://github.com/ojustino/tennis-abs-api/.github/actions/workflows/run_tests.yml/badge.svg" />
   </a>
   <br />
   <i> ( ⬆️ click above to run in the cloud) </i>

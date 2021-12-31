@@ -1,0 +1,40 @@
+name: api-tests
+on: push #[push, pull_request]
+  # push:
+  #   branches:
+  #     - main
+  # pull_request:
+  #   branches:
+  #     - main
+
+env:
+  bash_install_cmd: 'bash binder/actions_installs.sh'
+  pip_install_cmd: 'python3 -m pip install pytest -r binder/requirements.txt'
+  test_cmd: 'pytest'
+
+jobs:
+  build:
+
+    # OS and Python versions
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-18.04, macos-10.15]
+        python-version: [3.6, 3.7, 3.8]
+        #max-parallel: 3
+
+    # the job
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2 # check v1 as well?
+
+      - name: Install browsers and webdrivers
+        run: ${{ env.bash_install_cmd }}
+
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          ${{ env.pip_install_cmd }}
+
+      - name: Run tests
+        run: ${{ env.test_cmd }}
