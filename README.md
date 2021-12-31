@@ -1,6 +1,6 @@
 ## `tennis_abs_api` 🎾
 <p>
-  <a href="https://mybinder.org/v2/gh/ojustino/tennis-abs-api/30903c?filepath=walkthrough.ipynb" target="_blank">
+  <a href="https://mybinder.org/v2/gh/ojustino/tennis-abs-api/main?filepath=walkthrough.ipynb" target="_blank">
     <img src="https://mybinder.org/badge_logo.svg"/>
   </a>
   <!--
@@ -9,7 +9,7 @@
   </a>
 -->
   <a href="" target="_blank">
-    <img src="https://github.com/ojustino/tennis-abs-api/.github/actions/workflows/run_tests.yml/badge.svg" />
+    <img src="https://github.com/ojustino/tennis-abs-api/actions/workflows/run_tests.yml/badge.svg" />
   </a>
   <br />
   <i> ( ⬆️ click above to run in the cloud) </i>
@@ -37,8 +37,9 @@ Headless browsing in Python with `selenium` (and `PyQt5` in earlier commits),
 HTML DOM manipulation, JavaScript event triggering, cross-browser (Chromium,
 Firefox) and cross-OS (Mac, Ubuntu) support, Data(Frame) manipulation with
 `pandas`, cloud-based Jupyter environment creation with Binder and Docker,
-testing and continuous integration with `pytest` and Travis, object-oriented
-programming, regular expressions, and a lot of persistence.
+testing and continuous integration with `pytest` and GitHub Actions (or Travis
+in earlier commits), object-oriented programming, regular expressions, and a lot
+of persistence.
 
 The site doesn't have a public API and is designed for front-end, click-based
 interaction. Its backend system for querying match data has a number of
