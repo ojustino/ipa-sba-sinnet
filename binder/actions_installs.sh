@@ -16,7 +16,7 @@ else
 fi
 
 unzip -q /tmp/chromedriver-64b.zip -d ~/bin/
-echo "-----chromedriver unzipped-----"
+echo "----^chromedriver unzipped^----"
 
 # download and unpack geckodriver (for Firefox)
 if [ "$RUNNER_OS" == "Linux" ]; then
@@ -28,7 +28,7 @@ else
 fi
 
 tar -xzf /tmp/geckodriver-v0.23.0.tar.gz -C ~/bin/
-echo "-----geckodriver untarred-----"
+echo "----^geckodriver untarred^----"
 
 # add *drivers' location to path so selenium can find them
 export PATH="$PATH:~/bin/"
@@ -37,27 +37,30 @@ export PATH="$PATH:~/bin/"
 if [ "$RUNNER_OS" == "Linux" ]; then
     # unlike docker, travis' linux build comes with chrome pre-installed,
     # so get rid of it before installing chromium
-    # (ADDENDUM: let's see what happens with github actions...)
-    ls /usr/bin/go*
-    echo "-----------------------"
+    ls -d /usr/bin/go*
+    echo "----^/usr/bin/go*^-----"
     sudo apt-get purge chromium-browser google-chrome-stable
-    sudo apt-get -q clean # have to clean and update or install errors out
-    sudo apt-get -q update
+    # sudo apt-get -q clean
+    # sudo apt-get -q update
     sudo apt-get --yes -qq install chromium-browser
     chromium-browser --version
 elif [ "$RUNNER_OS" == "macOS" ]; then
+    ls -d /Applications/Go*
+    echo "--^/Applications/Go*^--"
+    sudo rm -r '/Applications/Google Chrome.app' '~/Library/Application Support/Google/Ch*'
     wget --no-verbose -O /tmp/chromium-83.0.4103.97.zip https://github.com/macchrome/macstable/releases/download/v83.0.4103.97-r756066-Ungoogled-macOS/Chromium.app.ungoogled-83.0.4103.97.zip
     unzip -q /tmp/chromium-83.0.4103.97.zip -d /Applications
 else
     echo "Invalid OS. Windows TBD..."
 fi
-echo "-----chromium equipped-----"
+echo "----^chromium equipped^----"
 
 # MAY HAVE TO SET UP FIREFOX MYSELF NOW...
 
 # list contents of relevant directories
 ls /tmp/
-echo "-----------------------"
+echo "--------^/tmp/^--------"
 ls ~/bin
-echo "-----------------------"
-if [ "$RUNNER_OS" == "macOS" ]; then ls /App*; else ls /usr/bin/ch* /usr/bin/go*; fi
+echo "--------^/bin/^--------"
+if [ "$RUNNER_OS" == "macOS" ]; then ls /App*; else ls -d /usr/bin/ch* /usr/bin/go*; fi
+echo "--------^apps^---------"

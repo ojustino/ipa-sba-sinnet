@@ -1,11 +1,12 @@
 name: api-tests
-on: push #[push, pull_request]
-  # push:
-  #   branches:
-  #     - main
-  # pull_request:
-  #   branches:
-  #     - main
+on: #push #[push, pull_request]
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - 'main'
+    types: [ opened, synchronize, review_requested ]
 
 env:
   bash_install_cmd: 'bash binder/actions_installs.sh'
@@ -18,9 +19,10 @@ jobs:
     # OS and Python versions
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false # consider allowing this in certain conditions
       matrix:
         os: [ubuntu-18.04, macos-10.15]
-        python-version: [3.7] #[3.6, 3.7, 3.8]
+        python-version: [3.7] # [3.6, 3.7, 3.8] # only run one in PRs?
         #max-parallel: 3
 
     # the job
