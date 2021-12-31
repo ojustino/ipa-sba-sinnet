@@ -5,10 +5,10 @@ pwd
 
 # download and unpack chromedriver
 if [ "$RUNNER_OS" == "Linux" ]; then
-    wget --no-verbose -O /tmp/chromedriver-64b.zip https://chromedriver.storage.googleapis.com/83.0.4103.39/chromedriver_linux64.zip
+    wget --no-verbose -O /tmp/chromedriver-64b.zip https://chromedriver.storage.googleapis.com/95.0.4638.69/chromedriver_linux64.zip
     # last worked with v86.0.4240.22 on Travis
 elif [ "$RUNNER_OS" == "macOS" ]; then
-    wget --no-verbose -O /tmp/chromedriver-64b.zip https://chromedriver.storage.googleapis.com/83.0.4103.39/chromedriver_mac64.zip
+    wget --no-verbose -O /tmp/chromedriver-64b.zip https://chromedriver.storage.googleapis.com/95.0.4638.69/chromedriver_mac64.zip
     # last worked with v83.0.4103.39 on Travis
 else
     echo "Invalid OS. Windows TBD..."
@@ -35,8 +35,8 @@ export PATH="$PATH:~/bin/"
 
 # install (Linux)/download and unpack (Mac) chromium
 if [ "$RUNNER_OS" == "Linux" ]; then
-    # unlike docker, travis' linux build comes with chrome pre-installed,
-    # so get rid of it before installing chromium
+    # unlike docker, the Actions linux build comes with chrome pre-installed.
+    # uninstall it so it's not chosen by selenium over chromium
     ls -d /usr/bin/go*
     echo "----^/usr/bin/go*^-----"
     sudo apt-get purge chromium-browser google-chrome-stable
@@ -45,17 +45,19 @@ if [ "$RUNNER_OS" == "Linux" ]; then
     sudo apt-get --yes -qq install chromium-browser
     chromium-browser --version
 elif [ "$RUNNER_OS" == "macOS" ]; then
+    # uninstall Chrome so it's not chosen by selenium over chromium
     ls -d /Applications/Go*
     echo "--^/Applications/Go*^--"
     sudo rm -r '/Applications/Google Chrome.app' '~/Library/Application Support/Google/Ch*'
-    wget --no-verbose -O /tmp/chromium-83.0.4103.97.zip https://github.com/macchrome/macstable/releases/download/v83.0.4103.97-r756066-Ungoogled-macOS/Chromium.app.ungoogled-83.0.4103.97.zip
-    unzip -q /tmp/chromium-83.0.4103.97.zip -d /Applications
+    # wget --no-verbose -O /tmp/chromium-83.0.4103.97.zip https://github.com/macchrome/macstable/releases/download/v83.0.4103.97-r756066-Ungoogled-macOS/Chromium.app.ungoogled-83.0.4103.97.zip
+    wget  --no-verbose -O /tmp/chromium-95.0.4638.69.zip https://github.com/macchrome/macstable/releases/download/v95.0.4638.69-r920003-macOS/Chromium.95.0.4638.69.sync.app.zip
+    unzip -q /tmp/chromium-95.0.4638.69.zip -d /Applications
 else
     echo "Invalid OS. Windows TBD..."
 fi
 echo "----^chromium equipped^----"
 
-# MAY HAVE TO SET UP FIREFOX MYSELF NOW...
+# install a specific version of Firefox? .travis.yml used 77.0.1.
 
 # list contents of relevant directories
 ls /tmp/
