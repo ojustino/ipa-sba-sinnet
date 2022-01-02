@@ -8,11 +8,11 @@ if [ "$RUNNER_OS" == "Linux" ]; then
     wget --no-verbose -O /tmp/chromedriver-64b.zip https://chromedriver.storage.googleapis.com/95.0.4638.69/chromedriver_linux64.zip
     # last worked with v86.0.4240.22 on Travis
 elif [ "$RUNNER_OS" == "macOS" ]; then
-    wget --no-verbose -O /tmp/chromedriver-64b.zip https://chromedriver.storage.googleapis.com/93.0.4577.63/chromedriver_mac64.zip
+    wget --no-verbose -O /tmp/chromedriver-64b.zip https://chromedriver.storage.googleapis.com/95.0.4638.69/chromedriver_mac64.zip
     # last worked with v83.0.4103.39 on Travis
 else
     echo "Invalid OS. Windows TBD..."
-    # Windows would require a wholly different commands as a non-Unix OS
+    # Windows would require wholly different commands as a non-Unix OS
 fi
 
 unzip -q /tmp/chromedriver-64b.zip -d ~/bin/
@@ -49,10 +49,9 @@ elif [ "$RUNNER_OS" == "macOS" ]; then
     ls -d /Applications/Go*
     echo "--^/Applications/Go*^--"
     sudo rm -r '/Applications/Google Chrome.app' ~/Library/Application Support/Google/Ch* /usr/local/bin/chromedriver
-    # wget --no-verbose -O /tmp/chromium-83.0.4103.97.zip https://github.com/macchrome/macstable/releases/download/v83.0.4103.97-r756066-Ungoogled-macOS/Chromium.app.ungoogled-83.0.4103.97.zip
-    # wget  --no-verbose -O /tmp/chromium-95.0.4638.54.zip https://github.com/macchrome/macstable/releases/download/v95.0.4638.54-r920003-Ungoogled-macOS/Chromium.app.ungoogled-95.0.4638.54.zip
-    wget  --no-verbose -O /tmp/chromium-93.0.4577.63.zip https://github.com/macchrome/macstable/releases/download/v93.0.4577.63-r902210-Ungoogled-macOS/Chromium.app.ungoogled-93.0.4577.63.zip
-    unzip -q /tmp/chromium-93.0.4577.63.zip -d /Applications
+
+    wget  --no-verbose -O /tmp/chromium-95.0.4638.69.zip https://github.com/macchrome/macstable/releases/download/v95.0.4638.69-r920003-Ungoogled-macOS/Chromium.app.ungoogled-95.0.4638.69.zip
+    unzip -q /tmp/chromium-95.0.4638.69.zip -d /Applications
 else
     echo "Invalid OS. Windows TBD..."
 fi

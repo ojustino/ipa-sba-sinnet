@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false # consider allowing this in certain conditions
       matrix:
-        os: [macos-10.15] #[ubuntu-18.04, macos-10.15]
+        os: [ubuntu-18.04, macos-10.15]
         python-version: [3.7] # [3.6, 3.7, 3.8] # only run one in PRs?
         #max-parallel: 3
 
@@ -39,30 +39,32 @@ jobs:
       - name: Install browsers and webdrivers
         run: |
           ${{ env.bash_install_cmd }}
-          # echo "${{ env.driver_dir }}" >> $GITHUB_PATH
-          # echo $PATH
+          echo "${{ env.driver_dir }}" >> $GITHUB_PATH
 
-      - name: Install Python dependencies
+      - name: Make Mac modifications
+        if: runner.os == 'macOS'
         run: |
           #~/bin/chromedriver -v
           echo $PATH
 
-          # # modify files to assist mac selenium?
-          # brew install gsed # prefer gnu's implementation of sed
+          # modify query execution file to help selenium find Chromium
+          brew install gsed # prefer gnu's implementation of sed
 
-          # # specify chromedriver location
-          # #gsed -i "s@webdriver.Chrome@webdriver.Chrome('~/bin/chromedriver')@" execute_query.py
+          # specify chromedriver location
+          #gsed -i "s@webdriver.Chrome@webdriver.Chrome('~/bin/chromedriver')@" execute_query.py
 
-          # # specify chromium location
-          # gsed -i "s@--disable-extensions')@--disable-extensions')\n        if browser == 'chromium':\n            options.binary_location = '/Applications/Chromium.app/Contents/MacOS/Chromium'@" execute_query.py
+          # specify chromium location
+          gsed -i "s@--disable-extensions')@--disable-extensions')\n        if browser == 'chromium':\n            options.binary_location = '/Applications/Chromium.app/Contents/MacOS/Chromium'@" execute_query.py
 
-          # # print more info about selenium's Driver instance
-          # #gsed -i "s@, 810)@, 810)\n        print(driver.capabilities)@" execute_query.py
-          # #gsed -i 's@ties}@ties}\n        print('HIII', capabilities, sep='\n')@' ../../../hostedtoolcache/Python/3.7.12/x64/lib/python3.7/site-packages/selenium/webdriver/remote/webdriver.py
+          # print more info about selenium's Driver instance
+          #gsed -i "s@, 810)@, 810)\n        print(driver.capabilities)@" execute_query.py
+          #gsed -i 's@ties}@ties}\n        print('HIII', capabilities, sep='\n')@' ../../../hostedtoolcache/Python/3.7.12/x64/lib/python3.7/site-packages/selenium/webdriver/remote/webdriver.py
 
-          # # print modified section of execute_query.py
-          # head -n 90 execute_query.py | tail -n 21
+          # print modified section of execute_query.py
+          head -n 90 execute_query.py | tail -n 21
 
+      - name: Install Python dependencies
+        run: |
           python -m pip install --upgrade pip
           ${{ env.pip_install_cmd }}
 
