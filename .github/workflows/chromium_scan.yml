@@ -1,0 +1,49 @@
+name: chromium-binder-check
+
+on:
+  schedule:
+    # 11:05 AM UTC every T & F
+    # - cron: '5 11 * * TUE, FRI'
+    - cron: '0/5 * * * *' # every five minutes to test at first
+  pull_request:
+    branches:
+      - 'main'
+    types: [ opened, synchronize, review_requested ]
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v2
+
+    - name: Install Chromium; get version
+      run: |
+        sudo apt-get --yes -qq install chromium-browser
+
+        # save chromium-driver version info to env vars
+        echo "chromium_ver_full=$(chromium-browser --version | grep -Po '(?<=Chromium )+[0-9.]+')" >> $GITHUB_ENV
+        echo "chromium_ver_maj=$(chromium-browser --version | grep -Po '(?<=Chromium )+[0-9]+')" >> $GITHUB_ENV
+
+    - name: Check binder_installs.py # needs a bash file
+      run: |
+        echo "binder_ver=$(cat binder/binder_installs.py | grep -Po '(?<=\")[0-9.]+(?!=\" \# watch\!)')" >> $GITHUB_ENV
+        if [ "${{ env.chromium_ver_full }}" != "${{  env.binder_ver }}" ]; then echo "mismatched=true" >> $GITHUB_ENV; fi
+
+        # VAR=$(cat binder/binder_installs.py | grep -Po '(?<=\")[0-9.]+(?!=\")') # gives version number with echo $VAR
+
+    - name: Edit binder_installs.py
+      if: env.mismatched
+      run: |
+        echo "Mismatched is ${{ env.mismatched }}"
+
+        # "pick 1" -- make a new git branch
+        #eval "git checkout -b chromium-upgrade-$GITHUB_RUN_ID" # or...
+        eval "git checkout -b chromium-upgrade-${{ env.chromium_ver_maj }}"
+
+        # edit the file with the new version
+        sed -i "s@${{ env.binder_ver }}\") \# watch\!@${{ env.upgraded_ver }}\") \# watch\!@" binder/binder_installs.py
+        head -n 10 binder/binder_installs.py
+
+        # git add binder/binder_installs.py
