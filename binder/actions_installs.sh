@@ -48,7 +48,7 @@ elif [ "$RUNNER_OS" == "macOS" ]; then
     # uninstall default Chrome and chromedriver to avoid confusion in selenium
     ls -d /Applications/Go*
     echo "--^/Applications/Go*^--"
-    sudo rm -r '/Applications/Google Chrome.app' ~/Library/Application Support/Google/Ch* /usr/local/bin/chromedriver
+    sudo rm -r '/Applications/Google Chrome.app' '~/Library/Application Support/Google/Ch*' /usr/local/bin/chromedriver
 
     wget  --no-verbose -O /tmp/chromium-95.0.4638.69.zip https://github.com/macchrome/macstable/releases/download/v95.0.4638.69-r920003-Ungoogled-macOS/Chromium.app.ungoogled-95.0.4638.69.zip
     unzip -q /tmp/chromium-95.0.4638.69.zip -d /Applications

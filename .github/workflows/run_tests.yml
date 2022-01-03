@@ -2,11 +2,11 @@ name: api-tests
 on: #push #[push, pull_request]
   push:
     branches:
-      - main
+      - main # means pushes to main
   pull_request:
     branches:
-      - 'main'
-    types: [ opened, synchronize, review_requested ]
+      - 'main' # means pull requests targeting main
+    types: [ synchronize ] # opened, review_requested ]
 
 env:
   driver_dir: '~/bin' # set in actions_install.sh
@@ -15,7 +15,7 @@ env:
   test_cmd: 'pytest -s' # increases pytest's verbosity
 
 jobs:
-  build:
+  do-api-tests:
 
     # OS and Python versions
     runs-on: ${{ matrix.os }}
