@@ -1,8 +1,8 @@
 name: chromium-binder-check
 on:
   schedule:
-    # 11:05 AM UTC every T & F
-    # - cron: '5 11 * * TUE, FRI'
+    # 10:48 AM UTC every T & F
+    # - cron: '48 10 * * TUE, FRI'
     - cron: '0/5 * * * *' # every five minutes to test at first
   pull_request:
     branches:
@@ -28,12 +28,12 @@ jobs:
         echo "chromium_ver_full=$(chromium-browser --version | grep -Po '(?<=Chromium )+[0-9.]+')" >> $GITHUB_ENV
         echo "chromium_ver_maj=$(chromium-browser --version | grep -Po '(?<=Chromium )+[0-9]+')" >> $GITHUB_ENV
 
+    # Does Binder chromedriver version still match Ubuntu's current default?
+    # Only run steps after this one if not.
     - name: Check binder_installs.py
       run: |
         echo "binder_ver=$(cat binder/binder_installs.py | grep -Po '(?<=\")[0-9.]+(?!=\" \# watch\!)')" >> $GITHUB_ENV
         if [ "${{ env.chromium_ver_full }}" != "${{  env.binder_ver }}" ]; then echo "mismatched=true" >> $GITHUB_ENV; fi
-
-        # VAR=$(cat binder/binder_installs.py | grep -Po '(?<=\")[0-9.]+(?!=\")') # gives version number with echo $VAR
 
     - name: Set up Python
       if: env.mismatched
@@ -47,14 +47,22 @@ jobs:
         python -m pip install --upgrade pip
         ${{ env.pip_install_cmd }}
 
+    # Query available chromedriver versions and save the closest number
     - name: Find appropriate chromedriver
       if: env.mismatched
       run: |
-        echo "Mismatched is ${{ env.mismatched }}"
         echo "website_ver=$(python .github/helpers/chromedriver_versions.py -fv ${{ env.chromium_ver_full }})" >> $GITHUB_ENV
 
-    - name: Edit binder_installs.py
+    # need to check that output makes sense (perhaps in the python script)
+
+    # Is there already a PR that updates to the ver. found in the previous step?
+    - name: Consult existing pull requests
       if: env.mismatched
+      run: |
+        echo "complete_pr=$(python .github/helpers/existing_prs.py -fv ${{ env.website_ver }})" >> $GITHUB_ENV
+
+    - name: Edit binder_installs.py
+      if: env.complete_pr
       run: |
         # make a new git branch
         eval "git checkout -b chromium-upgrade-${{ env.chromium_ver_maj }}-$GITHUB_RUN_ID"
@@ -66,5 +74,48 @@ jobs:
         git add binder/binder_installs.py
         git status
 
+        git config --global user.email "zuck@google.com"
+        git config --global user.name "Botty Count"
+        git commit -m "[AUTO] Binder chromedriver bumped to v${{ env.website_ver }}"
+        git status
+
     # - name: Create pull request
-    #   run:
+    #   if: env.complete_pr
+    #   uses: peter-evans/create-pull-request@v3 # choose a specific commit
+    #   with:
+    #     #commit-message: |
+    #       [AUTO] Binder chromedriver bumped to v${{ env.website_ver }}
+    #     title: [AUTO] Update default Binder chromedriver
+    #     body: |
+    #       Moved from v${{ env.binder_ver }} to v${{ env.website_ver }}.
+    #     #labels: auto
+    #     labels: test
+    #     reviewers: ojustino
+    #     draft: true
+    #     #token: # needed?
+
+    # - name: About pull request
+    #   if: env.complete_pr
+    #   run: |
+    #     echo "Opened PR \#${{ steps.cpr.outputs.pull-request-number }}"
+    #     echo "at ${{ steps.cpr.outputs.pull-request-url }}"
+
+    # or...
+    - name: Create pull request
+      if: env.complete_pr
+      uses: repo-sync/pull-request@v2 # choose a specific commit
+      with:
+        destination_branch: "main"
+        pr_title: "[AUTO] Update default Binder chromedriver"
+        pr_body: "Moved from v${{ env.binder_ver }} to v${{ env.website_ver }}."
+        #pr_label: "auto"
+        pr_label: "test"
+        pr_reviewer: "ojustino"
+        pr_draft: "true"
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: About pull request
+      if: env.complete_pr
+      run: |
+        echo "Opened PR \#${{ steps.open-pr.outputs.pr_number }}"
+        echo "at ${{ steps.open-pr.outputs.pr_url }}"
