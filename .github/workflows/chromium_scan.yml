@@ -1,5 +1,4 @@
 name: chromium-binder-check
-
 on:
   schedule:
     # 11:05 AM UTC every T & F
@@ -9,6 +8,9 @@ on:
     branches:
       - 'main'
     types: [ opened, synchronize, review_requested ]
+
+env:
+  pip_install_cmd: 'python -m pip install -r binder/requirements.txt'
 
 jobs:
   build:
@@ -26,24 +28,43 @@ jobs:
         echo "chromium_ver_full=$(chromium-browser --version | grep -Po '(?<=Chromium )+[0-9.]+')" >> $GITHUB_ENV
         echo "chromium_ver_maj=$(chromium-browser --version | grep -Po '(?<=Chromium )+[0-9]+')" >> $GITHUB_ENV
 
-    - name: Check binder_installs.py # needs a bash file
+    - name: Check binder_installs.py
       run: |
         echo "binder_ver=$(cat binder/binder_installs.py | grep -Po '(?<=\")[0-9.]+(?!=\" \# watch\!)')" >> $GITHUB_ENV
         if [ "${{ env.chromium_ver_full }}" != "${{  env.binder_ver }}" ]; then echo "mismatched=true" >> $GITHUB_ENV; fi
 
         # VAR=$(cat binder/binder_installs.py | grep -Po '(?<=\")[0-9.]+(?!=\")') # gives version number with echo $VAR
 
-    - name: Edit binder_installs.py
+    - name: Set up Python
+      if: env.mismatched
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+
+    - name: Install Python dependencies
+      if: env.mismatched
+      run: |
+        python -m pip install --upgrade pip
+        ${{ env.pip_install_cmd }}
+
+    - name: Find appropriate chromedriver
       if: env.mismatched
       run: |
         echo "Mismatched is ${{ env.mismatched }}"
+        echo "website_ver=$(python .github/helpers/chromedriver_versions.py -fv ${{ env.chromium_ver_full }})" >> $GITHUB_ENV
 
-        # "pick 1" -- make a new git branch
-        #eval "git checkout -b chromium-upgrade-$GITHUB_RUN_ID" # or...
-        eval "git checkout -b chromium-upgrade-${{ env.chromium_ver_maj }}"
+    - name: Edit binder_installs.py
+      if: env.mismatched
+      run: |
+        # make a new git branch
+        eval "git checkout -b chromium-upgrade-${{ env.chromium_ver_maj }}-$GITHUB_RUN_ID"
 
         # edit the file with the new version
-        sed -i "s@${{ env.binder_ver }}\") \# watch\!@${{ env.upgraded_ver }}\") \# watch\!@" binder/binder_installs.py
-        head -n 10 binder/binder_installs.py
+        sed -i "s@${{ env.binder_ver }}\") \# watch\!@${{ env.website_ver }}\") \# watch\!@" binder/binder_installs.py
+        head -n 9 binder/binder_installs.py
 
-        # git add binder/binder_installs.py
+        git add binder/binder_installs.py
+        git status
+
+    # - name: Create pull request
+    #   run:
