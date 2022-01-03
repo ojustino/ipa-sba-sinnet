@@ -1,6 +1,6 @@
 ## `tennis_abs_api` 🎾
 <p>
-  <a href="https://mybinder.org/v2/gh/ojustino/tennis-abs-api/master?filepath=walkthrough.ipynb" target="_blank">
+  <a href="https://mybinder.org/v2/gh/ojustino/tennis-abs-api/30903c?filepath=walkthrough.ipynb" target="_blank">
     <img src="https://mybinder.org/badge_logo.svg"/>
   </a>
   <a href="https://travis-ci.com/github//ojustino/tennis-abs-api/" target="_blank">
