@@ -4,10 +4,6 @@ on:
     # 10:48 AM UTC every T & F
     # - cron: '48 10 * * TUE, FRI'
     - cron: '0/5 * * * *' # every five minutes to test at first
-  pull_request: # remove when ready for merge
-    branches:
-      - 'main'
-    types: [ opened, synchronize, review_requested ]
 
 env:
   pip_install_cmd: 'python -m pip install -r binder/requirements.txt'
@@ -19,6 +15,10 @@ jobs:
     steps:
     - name: Check out repository
       uses: actions/checkout@v2
+      with:
+        ref: main
+        token: ${{ secrets.AUTO_CHROMIUM }}
+        persist-credentials: true
 
     - name: Install Chromium; get version
       run: |
@@ -61,14 +61,6 @@ jobs:
       run: |
         echo "complete_pr=$(python .github/helpers/existing_prs.py -fv ${{ env.website_ver }})" >> $GITHUB_ENV
 
-    - name: Check out main (TEMPORARY FOR THIS PR)
-      if: env.complete_pr
-      uses: actions/checkout@v2
-      with:
-        ref: main
-        token: ${{ secrets.AUTO_CHROMIUM }}
-        persist-credentials: true
-
     - name: Create new branch
       if: env.complete_pr
       run: |
@@ -81,12 +73,11 @@ jobs:
         git checkout -b ${{ env.git_branch }} main
 
         # edit the file with the new version (*WITH* #watch! post-merge)
-        #sed -i "s@${{ env.binder_ver }}\") \# watch\!@${{ env.website_ver }}\") \# watch\!@" binder/binder_installs.py
-        sed -i "s@${{ env.binder_ver }}\")@${{ env.website_ver }}\") \# watch\!@" binder/binder_installs.py
+        sed -i "s@${{ env.binder_ver }}\") \# watch\!@${{ env.website_ver }}\") \# watch\!@" binder/binder_installs.py
         head -n 9 binder/binder_installs.py
 
         # verify identity to allow a push using personal access token.
-        # otherwise, can't trigger a workflow from a secrets.GITHUB_TOKEN push.
+        # otherwise, can't trigger a workflow from a secrets.GITHUB_TOKEN push
         git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         git remote set-url origin https://x-access-token:${{ secrets.AUTO_CHROMIUM }}@github.com/${{ github.repository }}
