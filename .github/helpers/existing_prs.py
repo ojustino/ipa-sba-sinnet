@@ -11,7 +11,7 @@ args = parser.parse_args()
 
 # Find all open pull requests with automation tag
 url_root = 'https://github.com'
-url_rest = '/ojustino/tennis-abs-api/pulls?q=is%3Apr+is%3Aopen+label%3Aauto'
+url_rest = '/ojustino/tennis-abs-api/pulls?q=is%3Apr+is%3Aopen+label%3Atest'
 req = request.urlopen(url_root + url_rest).read()
 soup = BeautifulSoup(req, 'html.parser')
 # need to address case when there's a 404 or the page looks different than expected...
@@ -27,17 +27,17 @@ for rest in matching_pages:
     _soup = BeautifulSoup(_req, 'html.parser')
     # need to address case when there's a 404 or the page looks different than expected...
 
-    title = _soup.select('span.js-issue-title.markdown-title')
+    title = _soup.select('span.js-issue-title.markdown-title')[0]
     intro = _soup.select('td.comment-body > p')[0]
 
     # if title or body text don't match expected format, move on
-    if title.text.split()[0] != '[AUTO]' or 'chromedriver' not in intro.text:
+    if title.text.split()[0] != '[AUTO]' or 'Moved' not in intro.text:
         continue
 
     pr_cd_ver = intro.text.split()[-1][:-1]
 
     # only proceed if the PR's chromedriver version is not the same
-    if args.full_version == pr_cd_ver:
+    if 'v' + args.full_version == pr_cd_ver:
         proceed = ''
     else:
         continue

@@ -1,7 +1,7 @@
 name: chromium-binder-prs
 on:
   create
-  # push:
+  # push: # wish i could filter create like push...
   #   branches:
   #     - 'chromium-upgrade-[0-9]+-[0-9]+'
 
@@ -36,9 +36,8 @@ jobs:
       with:
         destination_branch: "main"
         pr_title: "[AUTO] Update default Binder chromedriver"
-        pr_body: "🤖 Moved to v${{ env.binder_ver }}."
-        #pr_label: "auto"
-        pr_label: "test"
+        pr_body: "🤖 Moved chromedriver to version ${{ env.binder_ver }}."
+        pr_label: "auto"
         pr_reviewer: "ojustino"
         pr_draft: "true"
         github_token: ${{ secrets.AUTO_CHROMIUM }}
