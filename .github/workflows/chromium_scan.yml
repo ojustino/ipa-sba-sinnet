@@ -13,7 +13,7 @@ env:
   pip_install_cmd: 'python -m pip install -r binder/requirements.txt'
 
 jobs:
-  build:
+  do-chromium-binder-check:
     runs-on: ubuntu-18.04
 
     steps:
@@ -61,61 +61,37 @@ jobs:
       run: |
         echo "complete_pr=$(python .github/helpers/existing_prs.py -fv ${{ env.website_ver }})" >> $GITHUB_ENV
 
+    - name: Check out main (TEMPORARY FOR THIS PR)
+      uses: actions/checkout@v2
+      with:
+        ref: main
+        # token: ${{ secrets.AUTO_CHROMIUM }}
+        # persist-credentials: true
+
+    - name: Create new branch
+      if: env.complete_pr
+      run: |
+        echo 'git_branch="chromium-upgrade-${{ env.chromium_ver_maj }}-$GITHUB_RUN_ID"' >> $GITHUB_ENV
+
     - name: Edit binder_installs.py
       if: env.complete_pr
       run: |
-        # make a new git branch
-        eval "git checkout -b chromium-upgrade-${{ env.chromium_ver_maj }}-$GITHUB_RUN_ID"
+        git checkout -b ${{ env.git_branch }} main
 
-        # edit the file with the new version
-        sed -i "s@${{ env.binder_ver }}\") \# watch\!@${{ env.website_ver }}\") \# watch\!@" binder/binder_installs.py
+        # edit the file with the new version (*WITH* #watch! post-merge)
+        #sed -i "s@${{ env.binder_ver }}\") \# watch\!@${{ env.website_ver }}\") \# watch\!@" binder/binder_installs.py
+        sed -i "s@${{ env.binder_ver }}\")@${{ env.website_ver }}\") \# watch\!@" binder/binder_installs.py
         head -n 9 binder/binder_installs.py
 
-        git add binder/binder_installs.py
-        git status
-
+        # verify identity to allow a push using personal access token.
+        # otherwise, can't trigger a workflow from a secrets.GITHUB_TOKEN push.
         git config --global user.email "zuck@google.com"
         git config --global user.name "Botty Count"
-        git commit -m "[AUTO] Binder chromedriver bumped to v${{ env.website_ver }}"
+        git remote set-url origin https://x-access-token:${{ secrets.AUTO_CHROMIUM }}@github.com/${{ github.repository }}
+
+        # commit and push
+        git add binder/binder_installs.py
         git status
+        git commit -m "[AUTO] Binder chromedriver bumped to v${{ env.website_ver }}"
 
-    # - name: Create pull request
-    #   if: env.complete_pr
-    #   uses: peter-evans/create-pull-request@v3 # choose a specific commit
-    #   with:
-    #     #commit-message: |
-    #       [AUTO] Binder chromedriver bumped to v${{ env.website_ver }}
-    #     title: [AUTO] Update default Binder chromedriver
-    #     body: |
-    #       Moved from v${{ env.binder_ver }} to v${{ env.website_ver }}.
-    #     #labels: auto
-    #     labels: test
-    #     reviewers: ojustino
-    #     draft: true
-    #     #token: # needed?
-
-    # - name: About pull request
-    #   if: env.complete_pr
-    #   run: |
-    #     echo "Opened PR \#${{ steps.cpr.outputs.pull-request-number }}"
-    #     echo "at ${{ steps.cpr.outputs.pull-request-url }}"
-
-    # or...
-    - name: Create pull request
-      if: env.complete_pr
-      uses: repo-sync/pull-request@v2 # choose a specific commit
-      with:
-        destination_branch: "main"
-        pr_title: "[AUTO] Update default Binder chromedriver"
-        pr_body: "Moved from v${{ env.binder_ver }} to v${{ env.website_ver }}."
-        #pr_label: "auto"
-        pr_label: "test"
-        pr_reviewer: "ojustino"
-        pr_draft: "true"
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: About pull request
-      if: env.complete_pr
-      run: |
-        echo "Opened PR \#${{ steps.open-pr.outputs.pr_number }}"
-        echo "at ${{ steps.open-pr.outputs.pr_url }}"
+        git push origin ${{ env.git_branch }}
