@@ -2,7 +2,7 @@ name: chromium-binder-prs
 on:
   push:
     branches:
-      - 'chromium-upgrade-[0-9]+.[0-9]+'
+      - 'chromium-upgrade-[0-9]+-[0-9]+'
 
 jobs:
   open-auto-pr:
