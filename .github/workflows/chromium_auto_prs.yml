@@ -1,11 +1,13 @@
 name: chromium-binder-prs
 on:
-  push:
-    branches:
-      - 'chromium-upgrade-[0-9]+-[0-9]+'
+  create
+  # push:
+  #   branches:
+  #     - 'chromium-upgrade-[0-9]+-[0-9]+'
 
 jobs:
   open-auto-pr:
+    if: ${{ contains(github.ref, 'refs/heads/chromium-upgrade-') }}
     runs-on: ubuntu-18.04
 
     steps:
@@ -26,12 +28,7 @@ jobs:
     #     labels: test
     #     reviewers: ojustino
     #     draft: true
-    #     #token: # needed?
-
-    # - name: About pull request
-    #   run: |
-    #     echo "Opened PR \#${{ steps.cpr.outputs.pull-request-number }}"
-    #     echo "at ${{ steps.cpr.outputs.pull-request-url }}"
+    #     #token: ${{ secrets.AUTO_CHROMIUM }}
 
     # or...
     - name: Create pull request
@@ -48,5 +45,10 @@ jobs:
 
     - name: About pull request
       run: |
+        # create-pull-request
+        # echo "Opened PR \#${{ steps.cpr.outputs.pull-request-number }}"
+        # echo "at ${{ steps.cpr.outputs.pull-request-url }}"
+
+        # pull-request
         echo "Opened PR \#${{ steps.open-pr.outputs.pr_number }}"
         echo "at ${{ steps.open-pr.outputs.pr_url }}"
