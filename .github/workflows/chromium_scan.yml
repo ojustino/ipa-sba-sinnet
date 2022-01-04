@@ -85,13 +85,14 @@ jobs:
 
         # verify identity to allow a push using personal access token.
         # otherwise, can't trigger a workflow from a secrets.GITHUB_TOKEN push.
-        git config --global user.email "zuck@google.com"
-        git config --global user.name "Botty Count"
-        git remote set-url origin https://x-access-token:${{ secrets.AUTO_CHROMIUM }}@github.com/${{ github.repository }}
+        git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        #git remote set-url origin https://x-access-token:${{ secrets.AUTO_CHROMIUM }}@github.com/${{ github.repository }}
 
         # commit and push
         git add binder/binder_installs.py
         git status
         git commit -m "[AUTO] Binder chromedriver bumped to v${{ env.website_ver }}"
 
-        git push origin ${{ env.git_branch }}
+        #git push origin ${{ env.git_branch }}
+        git push "https://$GITHUB_ACTOR:${{ secrets.AUTO_CHROMIUM }}@github.com/$GITHUB_REPOSITORY.git" ${{ env.git_branch }}
