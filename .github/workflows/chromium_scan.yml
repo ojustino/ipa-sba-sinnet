@@ -1,0 +1,91 @@
+name: chromium-binder-check
+on:
+  schedule:
+    # 10:48 AM UTC every T & F
+    # - cron: '48 10 * * TUE, FRI'
+    - cron: '0/5 * * * *' # every five minutes to test at first
+
+env:
+  pip_install_cmd: 'python -m pip install -r binder/requirements.txt'
+
+jobs:
+  do-chromium-binder-check:
+    runs-on: ubuntu-18.04
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v2
+      with:
+        ref: main
+        token: ${{ secrets.AUTO_CHROMIUM }}
+        persist-credentials: true
+
+    - name: Install Chromium; get version
+      run: |
+        sudo apt-get --yes -qq install chromium-browser
+
+        # save chromium-driver version info to env vars
+        echo "chromium_ver_full=$(chromium-browser --version | grep -Po '(?<=Chromium )+[0-9.]+')" >> $GITHUB_ENV
+        echo "chromium_ver_maj=$(chromium-browser --version | grep -Po '(?<=Chromium )+[0-9]+')" >> $GITHUB_ENV
+
+    # Does Binder chromedriver version still match Ubuntu's current default?
+    # Only run steps after this one if not.
+    - name: Check binder_installs.py
+      run: |
+        echo "binder_ver=$(cat binder/binder_installs.py | grep -Po '(?<=\")[0-9.]+(?!=\" \# watch\!)')" >> $GITHUB_ENV
+        if [ "${{ env.chromium_ver_full }}" != "${{  env.binder_ver }}" ]; then echo "mismatched=true" >> $GITHUB_ENV; fi
+
+    - name: Set up Python
+      if: env.mismatched
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+
+    - name: Install Python dependencies
+      if: env.mismatched
+      run: |
+        python -m pip install --upgrade pip
+        ${{ env.pip_install_cmd }}
+
+    # Query available chromedriver versions and save the closest number
+    - name: Find appropriate chromedriver
+      if: env.mismatched
+      run: |
+        echo "website_ver=$(python .github/helpers/chromedriver_versions.py -fv ${{ env.chromium_ver_full }})" >> $GITHUB_ENV
+
+    # need to check that output makes sense (perhaps in the python script)
+
+    # Is there already a PR that updates to the ver. found in the previous step?
+    - name: Consult existing pull requests
+      if: env.mismatched
+      run: |
+        echo "complete_pr=$(python .github/helpers/existing_prs.py -fv ${{ env.website_ver }})" >> $GITHUB_ENV
+
+    - name: Create new branch
+      if: env.complete_pr
+      run: |
+        echo 'git_branch="chromium-upgrade-${{ env.chromium_ver_maj }}-$GITHUB_RUN_ID"' >> $GITHUB_ENV
+        # (needs its own step so the next one can access the new env variable)
+
+    - name: Edit binder_installs.py
+      if: env.complete_pr
+      run: |
+        git checkout -b ${{ env.git_branch }} main
+
+        # edit the file with the new version (*WITH* #watch! post-merge)
+        sed -i "s@${{ env.binder_ver }}\") \# watch\!@${{ env.website_ver }}\") \# watch\!@" binder/binder_installs.py
+        head -n 9 binder/binder_installs.py
+
+        # verify identity to allow a push using personal access token.
+        # otherwise, can't trigger a workflow from a secrets.GITHUB_TOKEN push
+        git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git remote set-url origin https://x-access-token:${{ secrets.AUTO_CHROMIUM }}@github.com/${{ github.repository }}
+
+        # commit and push
+        git add binder/binder_installs.py
+        git status
+        git commit -m "[AUTO] Binder chromedriver bumped to v${{ env.website_ver }}"
+
+        git push origin ${{ env.git_branch }}
+        # git push "https://$GITHUB_ACTOR:${{ secrets.AUTO_CHROMIUM }}@github.com/$GITHUB_REPOSITORY.git" ${{ env.git_branch }}

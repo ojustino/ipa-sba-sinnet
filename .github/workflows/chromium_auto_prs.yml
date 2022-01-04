@@ -1,7 +1,7 @@
 name: chromium-binder-prs
 on:
   create
-  # push:
+  # push: # wish i could filter create like push...
   #   branches:
   #     - 'chromium-upgrade-[0-9]+-[0-9]+'
 
@@ -12,11 +12,12 @@ jobs:
 
     steps:
     - name: Check out repository
-      uses: actions/checkout@v2 # check v1 as well?
+      uses: actions/checkout@v2
 
     - name: Get new chromedriver version number
       run: |
         echo "binder_ver=$(cat binder/binder_installs.py | grep -Po '(?<=\")[0-9.]+(?!=\" \# watch\!)')" >> $GITHUB_ENV
+        echo "major_binder_ver=$(cat binder/binder_installs.py | grep -Po '(?<=\")[0-9]+(?!=.)')" >> $GITHUB_ENV
 
     # - name: Create pull request
     #   uses: peter-evans/create-pull-request@v3 # choose a specific commit
@@ -35,12 +36,11 @@ jobs:
       uses: repo-sync/pull-request@v2 # choose a specific commit
       with:
         destination_branch: "main"
-        pr_title: "[AUTO] Update default Binder chromedriver"
-        pr_body: "🤖 Moved to v${{ env.binder_ver }}."
-        #pr_label: "auto"
-        pr_label: "test"
+        pr_title: "[AUTO] Update default Binder chromedriver (v${{ env.major_binder_ver }})"
+        pr_body: "🤖 Moved chromedriver to version ${{ env.binder_ver }}."
+        pr_label: "auto"
         pr_reviewer: "ojustino"
-        pr_draft: "true"
+        pr_draft: "true" # remove draft status at some point
         github_token: ${{ secrets.AUTO_CHROMIUM }}
 
     - name: About pull request
