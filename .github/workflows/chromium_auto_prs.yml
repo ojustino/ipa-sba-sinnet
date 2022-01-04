@@ -1,0 +1,52 @@
+name: chromium-binder-prs
+on:
+  push:
+    branches:
+      - 'chromium-upgrade-[0-9]+.[0-9]+'
+
+jobs:
+  open-auto-pr:
+    runs-on: ubuntu-18.04
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v2 # check v1 as well?
+
+    - name: Get new chromedriver version number
+      run: |
+        echo "binder_ver=$(cat binder/binder_installs.py | grep -Po '(?<=\")[0-9.]+(?!=\" \# watch\!)')" >> $GITHUB_ENV
+
+    # - name: Create pull request
+    #   uses: peter-evans/create-pull-request@v3 # choose a specific commit
+    #   with:
+    #     title: [AUTO] Update default Binder chromedriver
+    #     body: |
+    #       🤖 Moved to v${{ env.binder_ver }}.
+    #     #labels: auto
+    #     labels: test
+    #     reviewers: ojustino
+    #     draft: true
+    #     #token: # needed?
+
+    # - name: About pull request
+    #   run: |
+    #     echo "Opened PR \#${{ steps.cpr.outputs.pull-request-number }}"
+    #     echo "at ${{ steps.cpr.outputs.pull-request-url }}"
+
+    # or...
+    - name: Create pull request
+      uses: repo-sync/pull-request@v2 # choose a specific commit
+      with:
+        destination_branch: "main"
+        pr_title: "[AUTO] Update default Binder chromedriver"
+        pr_body: "🤖 Moved to v${{ env.binder_ver }}."
+        #pr_label: "auto"
+        pr_label: "test"
+        pr_reviewer: "ojustino"
+        pr_draft: "true"
+        github_token: ${{ secrets.AUTO_CHROMIUM }}
+
+    - name: About pull request
+      run: |
+        echo "Opened PR \#${{ steps.open-pr.outputs.pr_number }}"
+        echo "at ${{ steps.open-pr.outputs.pr_url }}"
