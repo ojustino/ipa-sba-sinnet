@@ -65,8 +65,8 @@ jobs:
       uses: actions/checkout@v2
       with:
         ref: main
-        # token: ${{ secrets.AUTO_CHROMIUM }}
-        # persist-credentials: true
+        token: ${{ secrets.AUTO_CHROMIUM }}
+        persist-credentials: true
 
     - name: Create new branch
       if: env.complete_pr
