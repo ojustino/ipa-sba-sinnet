@@ -18,7 +18,7 @@ validations = [
      'expect': '&f=ACareerqq&x=JoWilfriedTsonga,GaelMonfils'},
     {'tour': 'WTA', 'attrs': {'exclude opp': 'Sab Lisi'},
      'expect': '&f=ACareerqq&x=SabineLisicki'},
-    {'tour': 'WTA', 'attrs': {'head-to-head': ['Venus', 'bia rees']},
+    {'tour': 'WTA', 'attrs': {'head-to-head': ['Venus lli', 'bia rees']},
      'expect': '&f=ACareerqq&q=VenusWilliams,BiancaAndreescu'},
     {'tour': 'ATP', 'attrs': {'head-to-head': ['juan potro']},
      'expect': '&f=ACareerqq&q=JuanMartinDelPotro'},

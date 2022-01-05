@@ -2,8 +2,7 @@ name: chromium-binder-check
 on:
   schedule:
     # 10:48 AM UTC every T & F
-    # - cron: '48 10 * * TUE, FRI'
-    - cron: '45 9 * * *'
+    - cron: '48 10 * * TUE,FRI'
 
 env:
   pip_install_cmd: 'python -m pip install -r binder/requirements.txt'
