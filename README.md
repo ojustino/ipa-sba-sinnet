@@ -9,7 +9,7 @@
   </a>
 -->
   <a href="" target="_blank">
-    <img src="https://github.com/ojustino/tennis-abs-api/actions/workflows/run_tests.yml/badge.svg" />
+    <img src="https://github.com/ojustino/tennis-abs-api/actions/workflows/cron_api_tests.yml/badge.svg" />
   </a>
   <br />
   <i> ( ⬆️ click above to run in the cloud) </i>
