@@ -8,7 +8,7 @@
     <img src="https://travis-ci.org/ojustino/tennis-abs-api.svg?branch=master"/>
   </a>
 -->
-  <a href="" target="_blank">
+  <a href="https://github.com/ojustino/tennis-abs-api/actions/workflows/cron_api_tests.yml/" target="_blank">
     <img src="https://github.com/ojustino/tennis-abs-api/actions/workflows/cron_api_tests.yml/badge.svg" />
   </a>
   <br />
@@ -70,7 +70,7 @@ pip install .
 This project uses a
 <a href="https://github.com/ojustino/tennis-abs-api/blob/master/LICENSE.md" target="_blank">
     slightly modified version
-<a/> of the PolyForm Noncommercial License 1.0.0. Basically, you're free to
+</a> of the PolyForm Noncommercial License 1.0.0. Basically, you're free to
 view, run, download, and modify this package for any non-commercial purpose.
 
 ### Acknowledgments:
