@@ -11,12 +11,16 @@ args = parser.parse_args()
 
 # Fetch the chromedriver downloads page to see which versions are available
 url = 'https://chromedriver.chromium.org/downloads'
-req = request.urlopen(url).read()
-soup = BeautifulSoup(req, 'html.parser')
-# need to address case when there's a 404 or the page looks different than expected...
+req = request.urlopen(url)
+if req.status >= 400:
+    raise RuntimeError(f"HTTP response was {req.status}; job derailed.")
+soup = BeautifulSoup(req.read(), 'html.parser')
 
 # filter the page down to lists of full and major versions available
 ver_str = soup.select('a.XqQF9c > strong')
+if len(ver_str) == 0:
+    raise ValueError("No matching tags on Chromedriver downloads page. "
+                     "Action author should re-check references. Job derailed.")
 versions = [v.text.split()[1] for v in ver_str]
 versions_maj = [vv.split('.')[0] for vv in versions]
 major_version = args.full_version.split('.')[0]
@@ -25,4 +29,7 @@ if args.full_version in versions:
     print(args.full_version)
 elif major_version in versions_maj:
     print(next(v for v in versions if v.startswith(major_version)))
-# need an else case for unexpected outcomes...
+else:
+    raise ValueError("Discrepancy between default Ubuntu Chromium "
+                     f"(v{args.full_version}) and versions listed on "
+                     "chromedriver download page. Job derailed.")

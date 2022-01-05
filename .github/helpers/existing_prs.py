@@ -12,20 +12,26 @@ args = parser.parse_args()
 # Find all open pull requests with automation tag
 url_root = 'https://github.com'
 url_rest = '/ojustino/tennis-abs-api/pulls?q=is%3Apr+is%3Aopen+label%3Aauto'
-req = request.urlopen(url_root + url_rest).read()
-soup = BeautifulSoup(req, 'html.parser')
-# need to address case when there's a 404 or the page looks different than expected...
+req = request.urlopen(url_root + url_rest)
+if req.status >= 400:
+    raise RuntimeError(f"HTTP response was {req.status}; job derailed.")
+soup = BeautifulSoup(req.read(), 'html.parser')
 
 # Get links to those pull requests
+test_tags = soup.select('div.flex-auto.min-width-0')
+if len(test_tags) == 0:
+    raise ValueError("No matching tags on GitHub PR page. "
+                     "Action author should re-check references. Job derailed.")
 matching_tags = soup.select('div.flex-auto.min-width-0 > a')
 matching_pages = [a.get('href') for a in matching_tags]
 
 # If they exist, read webpages one by one
 proceed = 'yes'
 for rest in matching_pages:
-    _req = request.urlopen(url_root + rest).read()
-    _soup = BeautifulSoup(_req, 'html.parser')
-    # need to address case when there's a 404 or the page looks different than expected...
+    _req = request.urlopen(url_root + rest)
+    if _req.status >= 400:
+        raise RuntimeError(f"HTTP response was {_req.status}; job derailed.")
+    _soup = BeautifulSoup(_req.read(), 'html.parser')
 
     title = _soup.select('span.js-issue-title.markdown-title')[0]
     intro = _soup.select('td.comment-body > p')[0]

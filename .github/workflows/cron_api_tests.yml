@@ -1,8 +1,8 @@
-name: api-tests
+name: cron-api-tests
 on:
   schedule:
-    # 9:45 AM UTC every Saturday
-    - cron: '45 9 * * SAT'
+    # 9:45 AM UTC every Wednesday
+    - cron: '45 9 * * WED'
 
 env:
   driver_dir: '~/bin' # set in actions_install.sh
