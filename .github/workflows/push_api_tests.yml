@@ -6,7 +6,7 @@ on: #push #[push, pull_request]
   pull_request:
     branches:
       - 'main' # means pull requests targeting main
-    types: [ synchronize ] # opened, review_requested ]
+    types: [ opened, synchronize ] # review_requested ]
 
 env:
   driver_dir: '~/bin' # set in actions_install.sh
