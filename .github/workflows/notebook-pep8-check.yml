@@ -25,10 +25,11 @@ jobs:
     steps:
       - name: Check out PR branch
         uses: actions/checkout@v2
-        # with:
-        #   fetch-depth: needed?
-        #   token: needed?
-        #   persist-credentials: true
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          # fetch-depth: needed?
+          # token: needed?
+          # persist-credentials: true
 
       - name: Event familiarization
         run: |
@@ -43,6 +44,9 @@ jobs:
 
           echo "---contains(github.event.pull_request.labels.*.name, 'Technical Review')---"
           echo ${{ contains(github.event.pull_request.labels.*.name, 'Technical Review') }}
+
+          echo "---github.event.pull_request.head.ref---"
+          echo ${{ github.event.pull_request.head.ref }}
 
           echo "---github.event.pull_request.head.sha---"
           echo ${{ github.event.pull_request.head.sha }}
@@ -61,6 +65,8 @@ jobs:
 
           echo "---github.event.action---"
           echo ${{ github.event.action }}
+
+          git log --oneline
 
 
       - name: Get changed files
