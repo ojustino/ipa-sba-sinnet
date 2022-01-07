@@ -66,9 +66,6 @@ jobs:
           echo "---github.event.action---"
           echo ${{ github.event.action }}
 
-          git log --oneline
-
-
       - name: Get changed files
         run: |
           # make an array of all files added/copied/modified in the PR branch
@@ -79,6 +76,7 @@ jobs:
 
           # changed_files="${{ steps.changed-files.outputs.all_changed_files }}"
           changed_files=($(printf '%s\n' $git_diff))
+          echo "${changed_files[@]}"
           echo "changed_files=${changed_files[@]}" >> $GITHUB_ENV
 
           # use arrays to check that all changed files are in the same directory
