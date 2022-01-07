@@ -70,12 +70,15 @@ jobs:
         run: |
           # make an array of all files added/copied/modified in the PR branch
 
-          git_diff=$(git diff --name-only --diff-filter=ACM ${{ github.event.pull_request.head.sha }} ${{ github.event.pull_request.base.sha }})
+          git_diff=$(git diff --name-only --diff-filter=ACM ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
+          echo "git_diff"
+          echo $git_diff
 
           # (yes to added, copied, modified and NO to renamed, deleted, type changed, unmerged, or unknown, which seems reasonable.)
 
           # changed_files="${{ steps.changed-files.outputs.all_changed_files }}"
           changed_files=($(printf '%s\n' $git_diff))
+          echo "$changed_files"
           echo "${changed_files[@]}"
           echo "changed_files=${changed_files[@]}" >> $GITHUB_ENV
 
@@ -83,13 +86,19 @@ jobs:
           # https://unix.stackexchange.com/a/377820
 
           changed_dirs_all=( $(printf '%s\n' "${changed_files[@]}" | xargs dirname) )
+          echo "$changed_dir_all"
+          echo "${changed_dir_all[@]}"
           changed_dirs_uniq=( $(printf '%s\n' "${changed_dirs_all[@]}" | sort -u) )
+          echo "$changed_dir_uniq"
+          echo "${changed_dir_uniq[@]}"
           # ('%s\n' could be '%s.' or others depending on shell's $IFS value)
 
           if [ "${#changed_dirs_uniq[@]}" != 1 ]; then echo "one_dir=no" >> $GITHUB_ENV; fi
 
           # save that directory
           req_files=($(find ${changed_dirs_uniq[0]} -name '*requirements.txt'))
+          echo "$req_files"
+          echo "${req_files[@]}"
           echo "req_files=${req_files[@]}" >> $GITHUB_ENV
 
       - name: Auto-fail if changed files are not in same directory
