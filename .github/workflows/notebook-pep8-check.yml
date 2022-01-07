@@ -27,7 +27,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: ${{ github.event.pull_request.head.ref }}
-          # fetch-depth: needed?
+          fetch-depth: 100 # open to other numbers
           # token: needed?
           # persist-credentials: true
 
