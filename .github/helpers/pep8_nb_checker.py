@@ -46,7 +46,7 @@ flake8_file = pathlib.Path("run_flake8.sh")
 code_cells = []
 with open(nb_file) as f1:
     og_nb = json.load(f1)
-    
+
     with open(code_file, 'w') as f2:
         for i, cl in enumerate(og_nb['cells']):
             if cl['cell_type'] == 'code':
@@ -78,7 +78,7 @@ borderlines = []
 for j, ll in enumerate(script):
     if re.search(f"#+{signature}#+", ll):
         borderlines.append(j)
-    
+
 # customize the beginning of each PEP8 warning
 pre = dt.now(pytz.timezone("America/New_York")).strftime('%Y-%m-%d %H:%M:%S - INFO - ')
 # pre = 'INFO:pycodestyle:'
@@ -95,7 +95,7 @@ for w in warns:
     # get line numbers of each warning from the script
     w = w[re.match(code_file.name, w).end():]
     loc = [int(d) for d in re.findall('(?<=:)\d+(?=:)', w)]
-    
+
     # translate them into cell numbers and intra-cell line number
     code_cell_num = np.searchsorted(borderlines, loc[0])
     all_cell_num = code_cells[code_cell_num]
@@ -108,11 +108,11 @@ for w in warns:
     # only keep line/column info and warning from original flake8 text.
     # prepend it with the customized string chosen earlier
     nu_msg = pre + re.sub(':\d+(?=:)', line_in_cell, w, count=1)
-    
+
     # update the defaultdict
     nu_output_dict[all_cell_num].update({'name': 'stderr', 'output_type': 'stream'})
     nu_output_dict[all_cell_num]['text'].append(nu_msg)
-    
+
 # use the defaultdict's keys to learn which cells own the warnings
 cells_to_edit = list(nu_output_dict.keys())
 injected_nb = copy.deepcopy(og_nb)
@@ -123,11 +123,11 @@ for num, cell in enumerate(injected_nb['cells']):
         cell['execution_count'] = None
     if cell.get('outputs'):
         cell['outputs'] = []
-        
+
     # inject PEP8 warnings into cells marked earlier
     if num in cells_to_edit:
         cell['outputs'] = [nu_output_dict[num]]
-        
+
 # insert cells for enabling interactive PEP8 feedback just before first code cell
 flake8_magic_cells = [{
    "cell_type": "markdown",
@@ -173,8 +173,6 @@ flake8_magic_cells = [{
 injected_nb['cells'][code_cells[0]:code_cells[0]] = flake8_magic_cells
 
 # save the edited notebook
-edited_file = f"{nb_file.stem}_edit{nb_ext}"
-# with open(nb_file, 'w') as file:
-with open(edited_file, 'w') as file:
+with open(nb_file, 'w') as file:
     json.dump(injected_nb, file, indent=1, ensure_ascii=False)
     file.write("\n") # end with new line since json.dump doesn't

@@ -1,6 +1,6 @@
-## `tennis_abs_api` 🎾
+## `ipa-sba-sinnet` 🎾
 <p>
-  <a href="https://mybinder.org/v2/gh/ojustino/tennis-abs-api/main?filepath=walkthrough.ipynb" target="_blank">
+  <a href="https://mybinder.org/v2/gh/ojustino/ipa-sba-sinnet/main?filepath=walkthrough.ipynb" target="_blank">
     <img src="https://mybinder.org/badge_logo.svg"/>
   </a>
   <!--
