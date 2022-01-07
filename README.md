@@ -7,10 +7,10 @@
   <a href="https://travis-ci.com/github//ojustino/tennis-abs-api/" target="_blank">
     <img src="https://travis-ci.org/ojustino/tennis-abs-api.svg?branch=master"/>
   </a>
--->
   <a href="https://github.com/ojustino/tennis-abs-api/actions/workflows/cron_api_tests.yml/" target="_blank">
     <img src="https://github.com/ojustino/tennis-abs-api/actions/workflows/cron_api_tests.yml/badge.svg" />
   </a>
+  -->
   <br />
   <i> ( ⬆️ click above to run in the cloud) </i>
 </p>
