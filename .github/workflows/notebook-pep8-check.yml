@@ -78,7 +78,7 @@ jobs:
 
           # changed_files="${{ steps.changed-files.outputs.all_changed_files }}"
           changed_files=($(printf '%s\n' $git_diff))
-          echo "$changed_files"
+          echo "changed_files"
           echo "${changed_files[@]}"
           echo "changed_files=${changed_files[@]}" >> $GITHUB_ENV
 
@@ -86,10 +86,10 @@ jobs:
           # https://unix.stackexchange.com/a/377820
 
           changed_dirs_all=( $(printf '%s\n' "${changed_files[@]}" | xargs dirname) )
-          echo "$changed_dir_all"
+          echo "changed_dir_all"
           echo "${changed_dir_all[@]}"
           changed_dirs_uniq=( $(printf '%s\n' "${changed_dirs_all[@]}" | sort -u) )
-          echo "$changed_dir_uniq"
+          echo "changed_dir_uniq"
           echo "${changed_dir_uniq[@]}"
           # ('%s\n' could be '%s.' or others depending on shell's $IFS value)
 
@@ -97,7 +97,7 @@ jobs:
 
           # save that directory
           req_files=($(find ${changed_dirs_uniq[0]} -name '*requirements.txt'))
-          echo "$req_files"
+          echo "req_files"
           echo "${req_files[@]}"
           echo "req_files=${req_files[@]}" >> $GITHUB_ENV
 
@@ -124,6 +124,7 @@ jobs:
 
           for ff in ${{ env.req_files }}; do
             if [[ $ff == *"pre-requirements.txt" ]]; then
+              echo "installing from $ff";
               pip install -r $ff
             fi
           done
@@ -131,12 +132,16 @@ jobs:
           for ff in ${{ env.req_files }}; do
             if [[ $ff == *"requirements.txt" ]] && \\
             [[ $ff != *"pre-requirements.txt" ]]; then
+              echo "installing from $ff";
               pip install -r $ff
             fi
           done
 
       - name: Run the PEP8 check's Python script
         run: |
+          pwd
+          ls .
+
           # make flake8 sh file executable
           chmod +x ${{ env.flake8_runner }}
 
