@@ -6,6 +6,7 @@ on:
     paths:
       - 'notebooks/*/*.ipynb' # in jdat_notebooks
       - 'jdat_notebooks/*/*.ipynb' # in dat_pyinthesky
+      - 'nb_zone/*'
     types: [ labeled, opened, synchronize, reopened ]
 
 # looks like either each folder needs its own job or pull requests need to be
