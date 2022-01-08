@@ -162,8 +162,8 @@ jobs:
       - name: Push any changes to PR
         if: env.push
         run: |
-          git.config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git.config --local user.name "github-actions[bot]"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
           git remote set-url origin https://x-access-token:${{ secrets.XMAS_PARTY }}@github.com/${{ github.repository }}
           # permission issues if the ID'd party is not a maintainer?
 

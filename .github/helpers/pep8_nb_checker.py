@@ -42,9 +42,6 @@ warn_file = pathlib.Path(f"{nb_file.stem}_pep8.txt")
 flake8_file = pathlib.Path(".github/helpers/run_flake8.sh")
 # flake8_file = pathlib.Path("run_flake8.sh")
 
-import os
-print(os.listdir("."))
-
 # save code cell contents to a script, dividing in blocks with the separator
 code_cells = []
 with open(nb_file) as f1:
