@@ -70,6 +70,9 @@ jobs:
           echo "---github.event.action---"
           echo ${{ github.event.action }}
 
+          echo "---github.event.label.name---"
+          echo ${{ github.event.label.name }}
+
       - name: Get changed files
         run: |
           # make an array of all files added/copied/modified in the PR branch
