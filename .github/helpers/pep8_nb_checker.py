@@ -169,6 +169,7 @@ flake8_magic_cells = [{
    ]
   }]
 
+# TODO: check if the cells are still there from a previous commit first!
 injected_nb['cells'][code_cells[0]:code_cells[0]] = flake8_magic_cells
 
 # save the edited notebook

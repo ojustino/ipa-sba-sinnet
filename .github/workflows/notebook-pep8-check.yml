@@ -15,11 +15,15 @@ on:
 env:
   pep8_script: '.github/helpers/pep8_nb_checker.py'
   flake8_runner: '.github/helpers/run_flake8.sh'
+  bot_name: 'github-actions[bot]'
+  bot_email: '41898282+github-actions[bot]@users.noreply.github.com'
 
 jobs:
   do-notebook-pep8-check:
     if: |
-     ${{ github.event.label.name == 'Technical Review' }}
+     ${{ github.event.label.name == 'Technical Review' &&
+         github.event.pull_request.head.user.login != env.bot_name }}
+
     runs-on: ubuntu-18.04
 
     steps:
@@ -163,8 +167,8 @@ jobs:
         if: env.push
         run: |
           # verify identity to allow a push to which other workflows can respond
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
+          git config --local user.email $bot_email
+          git config --local user.name $bot_name
           git remote set-url origin https://x-access-token:${{ secrets.XMAS_PARTY }}@github.com/${{ github.repository }}
           # (any permission issues if the ID'd party is not a maintainer?)
 
