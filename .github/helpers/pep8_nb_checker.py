@@ -75,7 +75,7 @@ with open(code_file) as f4:
 
 borderlines = []
 for j, ll in enumerate(script):
-    if re.search(f"#+{signature}#+", ll):
+    if re.search(fr"#+{signature}#+", ll):
         borderlines.append(j)
 
 # customize the beginning of each PEP8 warning
@@ -93,7 +93,7 @@ nu_output_dict = defaultdict(lambda: defaultdict(list))
 for w in warns:
     # get line numbers of each warning from the script
     w = w[re.match(code_file.name, w).end():]
-    loc = [int(d) for d in re.findall('(?<=:)\d+(?=:)', w)]
+    loc = [int(d) for d in re.findall(r'(?<=:)\d+(?=:)', w)]
 
     # translate them into cell numbers and intra-cell line number
     code_cell_num = np.searchsorted(borderlines, loc[0])
@@ -106,7 +106,7 @@ for w in warns:
 
     # only keep line/column info and warning from original flake8 text.
     # prepend it with the customized string chosen earlier
-    nu_msg = pre + re.sub(':\d+(?=:)', line_in_cell, w, count=1)
+    nu_msg = pre + re.sub(r':\d+(?=:)', line_in_cell, w, count=1)
 
     # update the defaultdict
     nu_output_dict[all_cell_num].update({'name': 'stderr', 'output_type': 'stream'})
