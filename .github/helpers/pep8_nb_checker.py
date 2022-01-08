@@ -40,7 +40,6 @@ separator = '# ' + '#' * fill_0 + signature + '#' * fill_1
 code_file = pathlib.Path(f"{nb_file.stem}_scripted.py")
 warn_file = pathlib.Path(f"{nb_file.stem}_pep8.txt")
 flake8_file = pathlib.Path(".github/helpers/run_flake8.sh")
-# flake8_file = pathlib.Path("run_flake8.sh")
 
 # save code cell contents to a script, dividing in blocks with the separator
 code_cells = []

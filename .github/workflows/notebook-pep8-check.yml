@@ -162,15 +162,20 @@ jobs:
       - name: Push any changes to PR
         if: env.push
         run: |
+          # verify identity to allow a push to which other workflows can respond
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git remote set-url origin https://x-access-token:${{ secrets.XMAS_PARTY }}@github.com/${{ github.repository }}
-          # permission issues if the ID'd party is not a maintainer?
+          # (any permission issues if the ID'd party is not a maintainer?)
 
+          # add the changed notebook(s)
           git add --update
           # should be safe if only notebooks are modified... skips newly added files like those from the script
           git status
-          git commit -m "[BOT] Performed PEP8 checks on" # -m list all notebooks somehow?
+
+          # list changed notebooks in commit message; push the changes
+          git_diff_new=($(git diff --name-only --diff-filter=M HEAD))
+          git commit -m "[BOT] Left PEP8 feedback on PR notebooks" -m "Files: $(printf '%s\n' $git_diff_new)"
 
           git push origin ${{ env.git_branch }}
 
