@@ -21,10 +21,10 @@ env:
 jobs:
   do-notebook-pep8-check:
     if: |
-     ${{ contains(github.event.pull_request.labels.*.name, 'Technical Review') &&
-         github.event.pull_request.head.user.login != 'github-actions[bot]' &&
-         github.event.pull_request.draft == false &&
-         github.event.pull_request.state == 'open' }}
+     contains(github.event.pull_request.labels.*.name, 'Technical Review') &&
+     github.event.pull_request.head.user.login != 'github-actions[bot]' &&
+     github.event.pull_request.draft == false &&
+     github.event.pull_request.state == 'open'
 
     runs-on: ubuntu-18.04
 
