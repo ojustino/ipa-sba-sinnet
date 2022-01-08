@@ -66,7 +66,7 @@ with open(warn_file) as f3:
 
 # if there are none, QUIT while we're ahead
 if not warns:
-    # print('')
+    print(f"{nb_file} is clean!")
     sys.exit()
 
 # read in the script and find the lines that function as cell borders
@@ -112,7 +112,7 @@ for w in warns:
     nu_output_dict[all_cell_num].update({'name': 'stderr', 'output_type': 'stream'})
     nu_output_dict[all_cell_num]['text'].append(nu_msg)
 
-# use the defaultdict's keys to learn which cells own the warnings
+# use the defaultdict's keys to learn which cells require warnings
 cells_to_edit = list(nu_output_dict.keys())
 injected_nb = copy.deepcopy(og_nb)
 
@@ -127,7 +127,8 @@ for num, cell in enumerate(injected_nb['cells']):
     if num in cells_to_edit:
         cell['outputs'] = [nu_output_dict[num]]
 
-# insert cells for enabling interactive PEP8 feedback just before first code cell
+# insert cells for enabling interactive PEP8 feedback just above first code cell
+# if they aren't already present
 flake8_magic_cells = [{
    "cell_type": "markdown",
    "metadata": {},
@@ -169,8 +170,9 @@ flake8_magic_cells = [{
    ]
   }]
 
-# TODO: check if the cells are still there from a previous commit first!
-injected_nb['cells'][code_cells[0]:code_cells[0]] = flake8_magic_cells
+if any([og_nb['cells'][i].get('source') == flake8_magic_cells[0]['source']
+        for i in code_cells]):
+  injected_nb['cells'][code_cells[0]:code_cells[0]] = flake8_magic_cells
 
 # save the edited notebook
 with open(nb_file, 'w') as file:
