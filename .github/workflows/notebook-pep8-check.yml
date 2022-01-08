@@ -172,7 +172,7 @@ jobs:
           git status
           git commit -m "[BOT] Performed PEP8 checks on" # -m list all notebooks somehow?
 
-          git.push origin ${{ env.git_branch }}
+          git push origin ${{ env.git_branch }}
 
           # NOTE: if there's a problem pushing to the branch, it might be because we've checked out refs/pull/PR-NUMBER/head instead of the author's branch. should i copy these steps i take locally?
           # git remote add author-remote "git@github.com:${{ github.event.pull_request.head.user.login }}/${{ github.event.repository.name }}.git"
