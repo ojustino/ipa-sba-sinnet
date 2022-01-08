@@ -140,7 +140,7 @@ jobs:
       - name: Run the PEP8 check's Python script
         run: |
           pwd
-          ls .
+          ls -A .
 
           # make flake8 sh file executable
           chmod +x ${{ env.flake8_runner }}
@@ -156,6 +156,7 @@ jobs:
 
           # check for changes to the notebooks in this local branch
           if [[ `git status --porcelain --untracked-files=no` ]]; then echo "push=yes" >> $GITHUB_ENV; fi
+        shell: bash
 
       # if env.push is empty, the next steps are skipped and the job should pass
       - name: Push any changes to PR
