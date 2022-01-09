@@ -22,28 +22,32 @@ jobs:
       - name: Respond to PR
         uses: actions/github-script@v5
         env:
-          BRANCH: "${{ github.event.pull_request.head.ref }}"
           TEMPLATE: ".github/helpers/tech_review_instructions.md"
+          BRANCH: "${{ github.event.pull_request.head.ref }}"
+          CREATOR: "${{ github.event.pull_request.head.user.login }}"
         with:
           script: |
             console.log("reached");
             console.log(process.cwd());
+
             // read text from template file
             const fs = require("fs").promises;
-            const msg = await fs.readFile(process.env.TEMPLATE, "utf8");
+            const message = await fs.readFile(process.env.TEMPLATE, "utf8");
             console.log("read file")
 
             // format message with user and PR info
             const util = require("util");
-            //const injected_msg = util.format(message, context.payload.issue.user.login, process.env.BRANCH, process.env.BRANCH, context.payload.repository);
-            // username, branch, branch, repo
+            const injected_msg = util.format(message, process.env.CREATOR,
+                                             process.env.BRANCH,
+                                             process.env.BRANCH,
+                                             context.repo.repo);
             console.log("formatted message")
 
             // create the comment?
-            //github.rest.issues.createComment({
-              //issue_number: context.issue.number,
-              //owner: context.repo.owner, // as in account that owns the repo
-              //repo: context.repo.repo,
-              //body: injected_msg
-            //});
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner, // as in account that owns the repo
+              repo: context.repo.repo,
+              body: injected_msg
+            });
 
