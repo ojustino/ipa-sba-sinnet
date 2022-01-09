@@ -197,6 +197,14 @@ jobs:
       - name: Write instructional message (if new branch)
         if: env.push
         uses: actions/github-script@v5
+        env:
+          BOTNAME: "github-actions[bot]"
+          # some of the following may not be necessary, but didn't see how to
+          # get them working with github payload object...
+          TEMPLATE: ".github/helpers/tech_review_instructions.md"
+          ISSUENO: "${{ github.event.number }}"
+          BRANCH: "${{ github.event.pull_request.head.ref }}"
+          CREATOR: "${{ github.event.pull_request.head.user.login }}"
         with:
           script: |
             async function scanAndPost()
