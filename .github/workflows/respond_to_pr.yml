@@ -22,32 +22,48 @@ jobs:
       - name: Respond to PR
         uses: actions/github-script@v5
         env:
+          BOTNAME: "github-actions[bot]"
+          # some of the following may not be necessary, but didn't see how to
+          # get them working with github payload object...
           TEMPLATE: ".github/helpers/tech_review_instructions.md"
+          ISSUENO: "${{ github.event.number }}"
           BRANCH: "${{ github.event.pull_request.head.ref }}"
           CREATOR: "${{ github.event.pull_request.head.user.login }}"
         with:
           script: |
-            console.log("reached");
-            console.log(process.cwd());
+            console.log(process.env.ISSUENO);
 
-            // read text from template file
-            const fs = require("fs").promises;
-            const message = await fs.readFile(process.env.TEMPLATE, "utf8");
-            console.log("read file")
-
-            // format message with user and PR info
-            const util = require("util");
-            const injected_msg = util.format(message, process.env.CREATOR,
-                                             process.env.BRANCH,
-                                             process.env.BRANCH,
-                                             context.repo.repo);
-            console.log("formatted message")
-
-            // create the comment?
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
+            // scan PR messages (expecting JS array of JS lists)
+            const comments = await github.rest.issues.listComments({
               owner: context.repo.owner, // as in account that owns the repo
               repo: context.repo.repo,
-              body: injected_msg
+              issue_number: process.env.ISSUENO
             });
+            //console.log(comments.data[0].user);
+            console.log(comments.data.filter(post => post.user.login === process.env.BOTNAME).length);
+            console.log("read PR messages");
+
+            // exit if the templated comment was already made
+
+            // read text from template file
+            //const fs = require("fs").promises;
+            //const message = await fs.readFile(process.env.TEMPLATE, "utf8");
+            //const message = "%s, %s, %s, %s"
+            //console.log("read file");
+
+            // format message with user and PR info
+            //const util = require("util");
+            //const injected_msg = util.format(message, process.env.CREATOR,
+            //                                 process.env.BRANCH,
+            //                                 process.env.BRANCH,
+            //                                 context.repo.repo);
+            //console.log("formatted message");
+
+            // create the comment
+            //github.rest.issues.createComment({
+            //  issue_number: context.issue.number,
+            //  owner: context.repo.owner,
+            //  repo: context.repo.repo,
+            //  body: injected_msg
+            //});
 
