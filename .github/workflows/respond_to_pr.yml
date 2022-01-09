@@ -10,8 +10,7 @@ jobs:
     if: |
       contains(github.event.pull_request.labels.*.name, 'Talkie') &&
       github.event.pull_request.head.user.login != 'github-actions[bot]' &&
-      github.event.pull_request.draft == 'false' &&
-      github.event.pull_request.state == 'open'
+      github.event.pull_request.draft == false
 
     runs-on: ubuntu-18.04
 
@@ -22,20 +21,21 @@ jobs:
           BRANCH: "${{ github.event.pull_request.head.ref }}"
         with:
           script: |
+            console.log("reached");
             // read text from template file
             const fs = require("fs").promises;
-            const msg = await fs.readFile("./github/helpers/tech_review_instructions.md", "utf8");
+            //const msg = await fs.readFile("./github/helpers/tech_review_instructions.md", "utf8");
 
-            console.log({BRANCH});
-            console.log(process.env.BRANCH);
+            //console.log({BRANCH});
+            //console.log(process.env.BRANCH);
 
             // format message with user and PR info
             const util = require("util");
-            const injected_msg = util.format(message, context.payload.issue.user.login, {BRANCH}, {BRANCH}, context.payload.repository);
+            //const injected_msg = util.format(message, context.payload.issue.user.login, {BRANCH}, {BRANCH}, context.payload.repository);
             // username, branch, branch, repo
 
             // create the comment?
-            github.rest.issues.createComment({
+            //github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner, # as in account that owns the repo
               repo: context.repo.repo,
