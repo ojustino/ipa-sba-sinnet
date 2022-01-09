@@ -25,4 +25,20 @@ jobs:
             console.log("reached");
             // read text from template file
             const fs = require("fs").promises;
-            //const msg = await fs.readFile("./github/helpers/tech_review_instructions.md", "utf8");
+            const msg = await fs.readFile("./github/helpers/tech_review_instructions.md", "utf8");
+            console.log("read file")
+
+            // format message with user and PR info
+            const util = require("util");
+            //const injected_msg = util.format(message, context.payload.issue.user.login, process.env.BRANCH, process.env.BRANCH, context.payload.repository);
+            // username, branch, branch, repo
+            console.log("formatted message")
+
+            // create the comment?
+            //github.rest.issues.createComment({
+              //issue_number: context.issue.number,
+              //owner: context.repo.owner, // as in account that owns the repo
+              //repo: context.repo.repo,
+              //body: injected_msg
+            //});
+
