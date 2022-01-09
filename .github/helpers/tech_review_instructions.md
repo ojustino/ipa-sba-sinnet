@@ -14,7 +14,7 @@ git fetch YOUR-REMOTE-FORK
 git merge YOUR-REMOTE-FORK/%s
 ```
 
-_(`YOUR-REMOTE-FORK` is your fork's online copy. It's often `origin`, but if  you don't know your name for it, run `git remote -v` and choose the one whose path ends with `YOUR-USERNAME/%s.git`.)_
+_(`YOUR-REMOTE-FORK` is your fork's online copy. It's often `origin`, but if  you don't know your name for it, run `git remote -v` and choose the one whose path ends with `%s/%s.git`.)_
 
 From here you can work on your branch as normal. If you have trouble with this step, please let me know before continuing.
 
