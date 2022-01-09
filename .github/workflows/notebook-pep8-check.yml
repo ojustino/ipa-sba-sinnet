@@ -181,7 +181,7 @@ jobs:
 
           # list changed notebooks in commit message; push the changes
           git_diff_new=($(git diff --name-only --diff-filter=M HEAD))
-          git commit -m "[BOT] Left PEP8 feedback on PR #${{ github.events.pull_request.number }}'s notebooks" -m "Files: $(printf '%s\n' $git_diff_new)"
+          git commit -m "[BOT] Left PEP8 feedback on PR #${{ github.event.number }}'s notebooks" -m "Files: $(printf '%s\n' $git_diff_new)"
 
           git push origin ${{ env.git_branch }}
 
