@@ -20,12 +20,14 @@ jobs:
         uses: actions/github-script@v5
         env:
           BRANCH: "${{ github.event.pull_request.head.ref }}"
+          TEMPLATE: ".github/helpers/tech_review_instructions.md"
         with:
           script: |
             console.log("reached");
+            console.log(process.cwd());
             // read text from template file
             const fs = require("fs").promises;
-            const msg = await fs.readFile("./github/helpers/tech_review_instructions.md", "utf8");
+            const msg = await fs.readFile(process.env.TEMPLATE, "utf8");
             console.log("read file")
 
             // format message with user and PR info
