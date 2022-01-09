@@ -170,7 +170,7 @@ flake8_magic_cells = [{
    ]
   }]
 
-if any([og_nb['cells'][i].get('source') == flake8_magic_cells[0]['source']
+if all([og_nb['cells'][i].get('source') != flake8_magic_cells[0]['source']
         for i in code_cells]):
   injected_nb['cells'][code_cells[0]:code_cells[0]] = flake8_magic_cells
 
