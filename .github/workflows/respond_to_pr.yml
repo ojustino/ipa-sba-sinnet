@@ -18,6 +18,11 @@ jobs:
     steps:
       - name: Respond to PR
         uses: actions/github-script@v5
+        env:
+          BRANCH: "${{ github.event.pull_request.head.ref }}"
         with:
           script: |
-            console.log("reached")
+            console.log("reached");
+            // read text from template file
+            const fs = require("fs").promises;
+            //const msg = await fs.readFile("./github/helpers/tech_review_instructions.md", "utf8");
