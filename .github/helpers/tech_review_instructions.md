@@ -1,6 +1,6 @@
 Hello @%s,
 
-Thank you for submitting these changes to your notebook. Please read for your technical review instructions.
+Thank you for submitting these changes to your notebook. Please read on for your technical review instructions.
 
 ## Before you begin
 
