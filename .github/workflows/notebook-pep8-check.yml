@@ -29,15 +29,6 @@ jobs:
     runs-on: ubuntu-18.04
 
     steps:
-      - name: Check out PR branch
-        uses: actions/checkout@v2
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          # is there any case where refs/pull/PR-NUMBER/head makes more sense?
-          fetch-depth: 101 # open to other numbers
-          # token: needed?
-          # persist-credentials: true
-
       - name: Event familiarization
         run: |
           echo "---github.event.pull_request.draft---"
@@ -72,6 +63,15 @@ jobs:
 
           echo "---github.event.sender.login---"
           echo ${{ github.event.sender.login }}
+
+      - name: Check out PR branch
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          # is there any case where refs/pull/PR-NUMBER/head makes more sense?
+          fetch-depth: 101 # open to other numbers
+          # token: needed?
+          # persist-credentials: true
 
       - name: Get changed files
         run: |
