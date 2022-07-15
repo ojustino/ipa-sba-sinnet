@@ -65,7 +65,7 @@ jobs:
           echo ${{ github.event.sender.login }}
 
       - name: Check out PR branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           # is there any case where refs/pull/PR-NUMBER/head makes more sense?
