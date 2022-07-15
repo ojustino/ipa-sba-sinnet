@@ -86,7 +86,7 @@ jobs:
           # echo $last_common
 
           git log origin/main --decorate --oneline -5
-          git log ${{ github.event.pull_request.head.ref }}
+          git log ${{ github.event.pull_request.head.ref }} --decorate --oneline -5
 
           git_diff=$(git diff --name-only --diff-filter=ACM ${{ github.event.pull_request.head.sha }} ${last_common})
           echo "git_diff"
