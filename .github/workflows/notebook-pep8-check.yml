@@ -85,7 +85,7 @@ jobs:
           last_common=$(git merge-base origin/${{ github.event.pull_request.base.ref }} ${{ github.event.pull_request.head.ref }})
           echo $last_common
 
-          git_diff=$(git diff --name-only --diff-filter=ACM ${last_common} ${{ github.event.pull_request.head.sha }})
+          git_diff=$(git diff --name-only --diff-filter=ACM ${{ github.event.pull_request.head.sha }} ${last_common})
           echo "git_diff"
           echo $git_diff
 
