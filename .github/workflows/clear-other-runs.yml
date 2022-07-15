@@ -4,7 +4,7 @@ on: [ issue_comment ]
 jobs:
   kindling:
     if: |
-      github.event.issue.pull_request
+      github.event.issue.pull_request &&
       contains(github.event.pull_request.labels.*.name, 'Talkie') &&
       github.event.pull_request.head.user.login != 'github-actions[bot]' &&
       github.event.pull_request.draft == false &&
