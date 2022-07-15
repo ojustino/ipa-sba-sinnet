@@ -66,20 +66,13 @@ jobs:
           echo "---github.event.sender.login---"
           echo ${{ github.event.sender.login }}
 
-      - name: Check out main
-        uses: actions/checkout@v2
-        with:
-          repository: ${{github.event.pull_request.head.repo.full_name}}
-          ref: ${{ github.event.pull_request.base.ref }}
-          fetch-depth: 1
-
       - name: Check out PR branch
         uses: actions/checkout@v2
         with:
           repository: ${{github.event.pull_request.head.repo.full_name}}
           ref: ${{ github.event.pull_request.head.ref }}
           # is there any case where refs/pull/PR-NUMBER/head makes more sense?
-          fetch-depth: 1 # open to other numbers
+          fetch-depth: 101 # open to other numbers
           # 0 fetches all branches even with ref specified
           # token: needed?
           # persist-credentials: true
@@ -88,7 +81,7 @@ jobs:
         run: |
           # make an array of all files added/copied/modified in the PR branch
 
-          git merge-base ${{ github.event.pull_request.base.ref }} ${{ github.event.pull_request.head.ref }}
+          git merge-base origin/${{ github.event.pull_request.base.ref }} ${{ github.event.pull_request.head.ref }}
           git log --oneline --decorate --stat
 
           git_diff=$(git diff --name-only --diff-filter=ACM ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
