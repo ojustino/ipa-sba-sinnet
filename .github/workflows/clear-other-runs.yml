@@ -1,5 +1,7 @@
 name: clear-other-runs
-on: [ issue_comment ]
+on:
+  issue_comment:
+    types: [created, edited]
 
 jobs:
   kindling:
