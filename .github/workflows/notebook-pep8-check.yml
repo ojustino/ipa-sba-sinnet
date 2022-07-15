@@ -78,7 +78,7 @@ jobs:
         run: |
           # make an array of all files added/copied/modified in the PR branch
 
-          echo "git log --oneline --decorate --stat"
+          git log --oneline --decorate --stat
 
           git_diff=$(git diff --name-only --diff-filter=ACM ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
           echo "git_diff"
