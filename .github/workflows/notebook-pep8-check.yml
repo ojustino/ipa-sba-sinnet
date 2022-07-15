@@ -82,10 +82,9 @@ jobs:
         run: |
           # make an array of all files added/copied/modified in the PR branch
 
-          git merge-base origin/${{ github.event.pull_request.base.ref }} ${{ github.event.pull_request.head.ref }}
-          git log --oneline --decorate --stat
+          last_common=$(git merge-base origin/${{ github.event.pull_request.base.ref }} ${{ github.event.pull_request.head.ref }})
 
-          git_diff=$(git diff --name-only --diff-filter=ACM ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
+          git_diff=$(git diff --name-only --diff-filter=ACM $last_common ${{ github.event.pull_request.head.sha }})
           echo "git_diff"
           echo $git_diff
 
