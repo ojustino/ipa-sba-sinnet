@@ -6,6 +6,7 @@ on:
 jobs:
   kindling:
     if: |
+      contains(github.event.pull_request.labels.*.name, 'Talkie') &&
       github.event.pull_request.head.user.login != 'github-actions[bot]' &&
       github.event.pull_request.draft == false
 
