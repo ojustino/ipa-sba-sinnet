@@ -6,7 +6,7 @@ on:
 jobs:
   kindling:
     if: |
-      github.event.pull_request.state == 'open'
+      github.event.pull_request.draft == false
 
     runs-on: ubuntu-18.04
 
