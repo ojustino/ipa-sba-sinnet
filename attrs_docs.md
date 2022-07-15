@@ -1,6 +1,6 @@
 # Valid `attrs` dictionaries
 
-Both **`DownloadStats`** and **`ConstructURL`** can take a **dictionary-typed keyword argument** named `attrs` to help **filter the match data returned by a query**. This dictionary's documentation merits its own page because Tennis Abstract doesn't have a public API and its structure is liable to change at any moment, 
+Both **`DownloadStats`** and **`ConstructURL`** can take a **dictionary-typed keyword argument** named `attrs` to help **filter the match data returned by a query**. This dictionary's documentation merits its own page because Tennis Abstract doesn't have a public API and its structure is liable to change at any moment.
 
 ## `attrs` may contain any or all of the following keys and values:
 
