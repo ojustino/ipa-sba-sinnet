@@ -72,7 +72,7 @@ jobs:
           repository: ${{github.event.pull_request.head.repo.full_name}}
           ref: ${{ github.event.pull_request.head.ref }}
           # is there any case where refs/pull/PR-NUMBER/head makes more sense?
-          fetch-depth: 0 # open to other numbers
+          fetch-depth: 101 # open to other numbers
           #  (0 fetches all branches even with ref specified... don't love that,
           #   but seems the only way to get base and PR branches in same folder)
           # token: needed?
@@ -85,14 +85,19 @@ jobs:
           # last_common=$(git merge-base origin/${{ github.event.pull_request.base.ref }} ${{ github.event.pull_request.head.ref }})
           # echo $last_common
 
-          git log origin/main --decorate --oneline -5
-          git log ${{ github.event.pull_request.head.ref }} --decorate --oneline -5
+          # git log origin/main --decorate --oneline -5
+          # git log ${{ github.event.pull_request.head.ref }} --decorate --oneline -5
 
-          git_diff=$(git diff --name-only --diff-filter=ACM ${{ github.event.pull_request.head.sha }} ${last_common})
+          git_diff=$(git diff --name-only --diff-filter=ACMR ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
+          # git_diff=$(git diff --name-only --diff-filter=ACMR $last_common ${{ github.event.pull_request.head.sha }})
           echo "git_diff"
           echo $git_diff
 
           # (yes to added, copied, modified and NO to renamed, deleted, type changed, unmerged, or unknown seems reasonable.)
+          # TEMP: allowing renames as well to aid in testing with forks
+
+          # should comparison be with newest commit on base/target branch
+          # OR with last common commit between base and PR branches??
 
           changed_files=($(printf '%s\n' $git_diff))
           echo "changed_files"
