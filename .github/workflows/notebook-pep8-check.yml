@@ -57,6 +57,8 @@ jobs:
 
           echo "---github.event.pull_request.base.sha---"
           echo ${{ github.event.pull_request.base.sha }}
+          # this is the latest commit on the base/target branch; NOT
+          # (necessarily) the commit from which the PR diverges!
 
           echo "---github.event.action---"
           echo ${{ github.event.action }}
@@ -65,9 +67,9 @@ jobs:
           echo ${{ github.event.sender.login }}
 
       - name: Check out PR branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.ref }}
           # is there any case where refs/pull/PR-NUMBER/head makes more sense?
           fetch-depth: 101 # open to other numbers
           repository: ${{github.event.pull_request.head.repo.full_name}}
@@ -78,6 +80,7 @@ jobs:
         run: |
           # make an array of all files added/copied/modified in the PR branch
 
+          git merge-base ${{ github.event.pull_request.base.ref }} ${{ github.event.pull_request.head.ref }}
           git log --oneline --decorate --stat
 
           git_diff=$(git diff --name-only --diff-filter=ACM ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
