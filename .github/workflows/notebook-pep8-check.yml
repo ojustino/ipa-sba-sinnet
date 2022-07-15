@@ -82,7 +82,7 @@ jobs:
         run: |
           # make an array of all files added/copied/modified in the PR branch
 
-          last_common=$(git merge-base ${{ github.event.pull_request.base.ref }} ${{ github.event.pull_request.head.ref }})
+          last_common=$(git merge-base origin/${{ github.event.pull_request.base.ref }} ${{ github.event.pull_request.head.ref }})
           echo "last_common"
           echo $last_common
 
