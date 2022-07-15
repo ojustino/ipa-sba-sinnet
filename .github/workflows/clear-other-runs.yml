@@ -5,6 +5,8 @@ on:
 
 jobs:
   kindling:
+    if: |
+      github.event.pull_request.state == 'open'
 
     runs-on: ubuntu-18.04
 
