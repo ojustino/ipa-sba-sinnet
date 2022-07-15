@@ -111,9 +111,11 @@ jobs:
           changed_dirs_all=( $(printf '%s\n' "${changed_files[@]}" | xargs dirname) )
           echo "changed_dir_all"
           echo "${changed_dir_all[@]}"
+          # EDIT: above echos should say changed_dirs_all with the "s"
           changed_dirs_uniq=( $(printf '%s\n' "${changed_dirs_all[@]}" | sort -u) )
           echo "changed_dir_uniq"
           echo "${changed_dir_uniq[@]}"
+          # EDIT: above echos should say changed_dirs_all with the "s"
           # ('%s\n' could be '%s.' or others depending on shell's $IFS value)
 
           if [ "${#changed_dirs_uniq[@]}" != 1 ]; then echo "one_dir=no" >> $GITHUB_ENV; fi

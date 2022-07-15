@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: listen for PR comments
-        uses: machine-learning-apps/actions-chatops@master
+        uses: ojustino/actions-chatops@master
         with:
           TRIGGER_PHRASE: "/spark"
         env:
