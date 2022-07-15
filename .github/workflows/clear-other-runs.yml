@@ -1,0 +1,33 @@
+name: clear-other-runs
+on: [ issue_comment ]
+
+jobs:
+  kindling:
+    if: |
+      github.event.issue.pull_request
+      contains(github.event.pull_request.labels.*.name, 'Talkie') &&
+      github.event.pull_request.head.user.login != 'github-actions[bot]' &&
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.state == 'open'
+
+    runs-on: ubuntu-18.04
+
+    steps:
+      - name: listen for PR comments
+        uses: machine-learning-apps/actions-chatops@master
+        with:
+          TRIGGER_PHRASE: "/spark"
+        env:
+          GITHUB_TOKEN: ${{ secrets.XMAS_PARTY }}
+        id: kindling
+
+      - name: Event familiarization
+        run: |
+          echo "---steps.kindling.outputs.COMMENTER_USERNAME---"
+          echo ${{ steps.kindling.outputs.COMMENTER_USERNAME }}
+
+          echo "---steps.kindling.outputs.SHA---"
+          echo ${{ steps.kindling.outputs.SHA }}
+
+          echo "---steps.kindling.outputs.BOOL_TRIGGERED---"
+          echo ${{ steps.kindling.outputs.BOOL_TRIGGERED }}
