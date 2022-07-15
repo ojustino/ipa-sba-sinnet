@@ -6,9 +6,11 @@ on:
 jobs:
   kindling:
     if: |
-      contains(github.event.pull_request.labels.*.name, 'Talkie') &&
+      github.event.issue.pull_request == true &&
+      # contains(github.event.pull_request.labels.*.name, 'Talkie') &&
       github.event.pull_request.head.user.login != 'github-actions[bot]' &&
-      github.event.pull_request.draft == false
+      github.event.pull_request.draft == false &&
+      # github.event.pull_request.state == 'open'
 
     runs-on: ubuntu-18.04
 
@@ -18,7 +20,7 @@ jobs:
         with:
           TRIGGER_PHRASE: "/spark"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.XMAS_PARTY }}
         id: kindling
 
       - name: Event familiarization
