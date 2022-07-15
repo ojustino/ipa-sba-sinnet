@@ -6,7 +6,6 @@ on:
 jobs:
   kindling:
     if: |
-      github.event.issue.pull_request == true &&
       github.event.pull_request.head.user.login != 'github-actions[bot]' &&
       github.event.pull_request.draft == false
 
