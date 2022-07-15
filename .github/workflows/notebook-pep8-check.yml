@@ -81,7 +81,8 @@ jobs:
         run: |
           # make an array of all files added/copied/modified in the PR branch
 
-          git merge-base origin/${{ github.event.pull_request.base.ref }} ${{ github.event.pull_request.head.ref }}
+          git remote
+          git merge-base ${{ github.event.pull_request.base.ref }} ${{ github.event.pull_request.head.ref }}
           git log --oneline --decorate --stat
 
           git_diff=$(git diff --name-only --diff-filter=ACM ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
