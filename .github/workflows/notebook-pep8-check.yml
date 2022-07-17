@@ -1,6 +1,6 @@
 name: notebook-pep8-check
 on:
-  pull_request:
+  pull_request_target:
     branches:
       - main
     paths:
@@ -190,13 +190,14 @@ jobs:
           # verify identity to allow a push to which other workflows can respond
           git config --local user.email $bot_email
           git config --local user.name $bot_name
-          git remote set-url origin https://${{ github.event.pull_request.user.login }}:${{ secrets.XMAS_PARTY }}@github.com/${{ github.event.pull_request.head.user.login }}/${{ github.event.repository.name }}.git
-          # # git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+
+          # git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           # (any permission issues if the ID'd party is not an owner?)
           # EDIT: 'origin' after checkout is actually what i called
           # author-remote below... no need to set it again in this step!
 
-          git remote -v
+          # # git remote set-url origin https://${{ github.event.pull_request.user.login }}:${{ secrets.XMAS_PARTY }}@github.com/${{ github.event.pull_request.head.user.login }}/${{ github.event.repository.name }}.git
+          # git remote -v
 
           # add the changed notebook(s)
           git add --update
