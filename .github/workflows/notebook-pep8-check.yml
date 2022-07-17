@@ -78,7 +78,7 @@ jobs:
           fetch-depth: 0 # open to other numbers
           #  (0 fetches all branches even with ref specified... don't love that,
           #   but seems the only way to get base and PR branches in same folder)
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # token: needed?
           # persist-credentials: true
 
       - name: Get changed files
@@ -190,10 +190,11 @@ jobs:
           # verify identity to allow a push to which other workflows can respond
           git config --local user.email $bot_email
           git config --local user.name $bot_name
-          # git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git remote set-url origin https://${{ github.event.pull_request.head.user.login }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          # # git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           # (any permission issues if the ID'd party is not an owner?)
           # EDIT: 'origin' after checkout is actually what i called
-          # author-remote below... no need to set it again in this block!
+          # author-remote below... no need to set it again in this step!
 
           # add the changed notebook(s)
           git add --update
@@ -207,7 +208,7 @@ jobs:
           # git push origin ${{ env.git_branch }}
 
           # NOTE: if there's a problem pushing to the branch, it might be because we've checked out refs/pull/PR-NUMBER/head instead of the author's branch. should i copy these steps i take locally?
-          git remote add author-remote "git@github.com:${{ github.event.pull_request.head.user.login }}/${{ github.event.repository.name }}.git"
+          # git remote add author-remote "git@github.com:${{ github.event.pull_request.head.user.login }}/${{ github.event.repository.name }}.git"
           # git fetch author-remote ${{ github.event.pull_request.head.ref }}
           # git checkout -b bot-swana "author-remote/${{ github.pull_request.head.ref }}" # pre-PEP8 script
           # git push author-remote "HEAD:${{ github.event.pull_request.head.ref }}"
