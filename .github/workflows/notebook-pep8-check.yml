@@ -196,7 +196,7 @@ jobs:
           # EDIT: 'origin' after checkout is actually what i called
           # author-remote below... no need to set it again in this step!
 
-          git remote
+          git remote -v
 
           # add the changed notebook(s)
           git add --update
