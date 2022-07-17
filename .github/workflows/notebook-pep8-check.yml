@@ -193,7 +193,7 @@ jobs:
           # git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           # (any permission issues if the ID'd party is not an owner?)
           # EDIT: 'origin' after checkout is actually what i called
-          # author-remote below... no need to set it again in this step!
+          # author-remote below... no need to set it again in this block!
 
           # add the changed notebook(s)
           git add --update
