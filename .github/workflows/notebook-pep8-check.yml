@@ -78,7 +78,7 @@ jobs:
           fetch-depth: 0 # open to other numbers
           #  (0 fetches all branches even with ref specified... don't love that,
           #   but seems the only way to get base and PR branches in same folder)
-          # token: needed?
+          token: ${{ secrets.GITHUB_TOKEN }} # needed?
           # persist-credentials: true
 
       - name: Get changed files
