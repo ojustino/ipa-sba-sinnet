@@ -203,9 +203,10 @@ jobs:
 
           # NOTE: if there's a problem pushing to the branch, it might be because we've checked out refs/pull/PR-NUMBER/head instead of the author's branch. should i copy these steps i take locally?
           git remote add author-remote "git@github.com:${{ github.event.pull_request.head.user.login }}/${{ github.event.repository.name }}.git"
-          # git fetch author-remote ${{ github.pull_request.head.ref }}
+          # git fetch author-remote ${{ github.event.pull_request.head.ref }}
           # git checkout -b bot-swana "author-remote/${{ github.pull_request.head.ref }}" # pre-PEP8 script
-          git push author-remote "HEAD:${{ github.pull_request.head.ref }}"
+          git push author-remote "HEAD:${{ github.event.pull_request.head.ref }}"
+          # NOTE: missing ".event." in previous two lines!
 
       # consider a marketplace action that gives access to GitHub's core API,
       # which includes a methods for auto-fail seen here
