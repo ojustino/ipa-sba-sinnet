@@ -18,6 +18,9 @@ env:
   bot_name: 'github-actions[bot]' # still must set this manually in conditional
   bot_email: '41898282+github-actions[bot]@users.noreply.github.com'
 
+permissions:
+  pull-requests: write
+
 jobs:
   do-notebook-pep8-check:
     if: |
