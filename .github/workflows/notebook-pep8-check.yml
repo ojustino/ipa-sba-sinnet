@@ -78,7 +78,7 @@ jobs:
           fetch-depth: 0 # open to other numbers
           #  (0 fetches all branches even with ref specified... don't love that,
           #   but seems the only way to get base and PR branches in same folder)
-          # token: needed?
+          token: ${{ secrets.XMAS_PARTY }}
           # persist-credentials: true
 
       - name: Get changed files
@@ -192,6 +192,8 @@ jobs:
           git config --local user.name $bot_name
           # git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           # (any permission issues if the ID'd party is not an owner?)
+          # EDIT: 'origin' after checkout is actually what i called
+          # author-remote below... no need to set it again in this step!
 
           # add the changed notebook(s)
           git add --update
