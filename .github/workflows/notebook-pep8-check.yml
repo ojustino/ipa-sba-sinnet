@@ -196,7 +196,7 @@ jobs:
           # EDIT: 'origin' after checkout is actually what i called
           # author-remote below... no need to set it again in this step!
 
-          # # git remote set-url origin https://${{ github.event.pull_request.user.login }}:${{ secrets.XMAS_PARTY }}@github.com/${{ github.event.pull_request.head.user.login }}/${{ github.event.repository.name }}.git
+          git remote set-url origin https://${{ github.event.pull_request.user.login }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.event.pull_request.head.user.login }}/${{ github.event.repository.name }}.git
           # git remote -v
 
           # add the changed notebook(s)
