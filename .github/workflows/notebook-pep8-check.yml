@@ -185,9 +185,9 @@ jobs:
         if: env.push
         run: |
           # verify identity to allow a push to which other workflows can respond
-          git config --local user.email $bot_email
-          git config --local user.name $bot_name
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          # git config --local user.email $bot_email
+          # git config --local user.name $bot_name
+          # git remote set-url origin https://x-access-token:${{ secrets.XMAS_PARTY }}@github.com/${{ github.repository }}
           # (any permission issues if the ID'd party is not an owner?)
 
           # add the changed notebook(s)
@@ -199,13 +199,13 @@ jobs:
           git_diff_new=($(git diff --name-only --diff-filter=M HEAD))
           git commit -m "[BOT] Left PEP8 feedback on PR #${{ github.event.number }}'s notebooks" -m "Files: $(printf '%s\n' $git_diff_new)"
 
-          git push origin ${{ env.git_branch }}
+          # git push origin ${{ env.git_branch }}
 
           # NOTE: if there's a problem pushing to the branch, it might be because we've checked out refs/pull/PR-NUMBER/head instead of the author's branch. should i copy these steps i take locally?
-          # git remote add author-remote "git@github.com:${{ github.event.pull_request.head.user.login }}/${{ github.event.repository.name }}.git"
+          git remote add author-remote "git@github.com:${{ github.event.pull_request.head.user.login }}/${{ github.event.repository.name }}.git"
           # git fetch author-remote ${{ github.pull_request.head.ref }}
           # git checkout -b bot-swana "author-remote/${{ github.pull_request.head.ref }}" # pre-PEP8 script
-          # git push author-remote "HEAD:${{ github.pull_request.head.ref }}"
+          git push author-remote "HEAD:${{ github.pull_request.head.ref }}"
 
       # consider a marketplace action that gives access to GitHub's core API,
       # which includes a methods for auto-fail seen here
