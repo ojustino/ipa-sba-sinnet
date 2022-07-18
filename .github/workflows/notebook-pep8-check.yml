@@ -148,7 +148,7 @@ jobs:
         id: cache-step
         with:
           path: ~/.cache/pip
-          key: 'testy'
+          key: testy
           # needs to differentiate from other PRs AND same PR with changed dependencies
 
       - name: Install flake8 and Python dependencies
