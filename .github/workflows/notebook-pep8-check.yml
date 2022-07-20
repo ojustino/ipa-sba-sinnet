@@ -9,6 +9,9 @@ on:
       - 'nb_zone/*' # in proof-of-concept
     types: [ labeled, opened, synchronize, reopened ]
 
+# ONLY WORKS if the PR and base/target branches belong to the same remote as the
+# main repository. See branch `main` for a solution that works for forks.
+
 # looks like either each folder needs its own job or pull requests need to be
 # limited to one folder at a time, otherwise requirements files will be mixed.
 
@@ -92,11 +95,11 @@ jobs:
           # https://unix.stackexchange.com/a/377820
 
           changed_dirs_all=( $(printf '%s\n' "${changed_files[@]}" | xargs dirname) )
-          echo "changed_dir_all"
-          echo "${changed_dir_all[@]}"
+          echo "changed_dirs_all"
+          echo "${changed_dirs_all[@]}"
           changed_dirs_uniq=( $(printf '%s\n' "${changed_dirs_all[@]}" | sort -u) )
-          echo "changed_dir_uniq"
-          echo "${changed_dir_uniq[@]}"
+          echo "changed_dirs_uniq"
+          echo "${changed_dirs_uniq[@]}"
           # ('%s\n' could be '%s.' or others depending on shell's $IFS value)
 
           if [ "${#changed_dirs_uniq[@]}" != 1 ]; then echo "one_dir=no" >> $GITHUB_ENV; fi
@@ -184,9 +187,9 @@ jobs:
 
           # NOTE: if there's a problem pushing to the branch, it might be because we've checked out refs/pull/PR-NUMBER/head instead of the author's branch. should i copy these steps i take locally?
           # git remote add author-remote "git@github.com:${{ github.event.pull_request.head.user.login }}/${{ github.event.repository.name }}.git"
-          # git fetch author-remote ${{ github.pull_request.head.ref }}
-          # git checkout -b bot-swana "author-remote/${{ github.pull_request.head.ref }}" # pre-PEP8 script
-          # git push author-remote "HEAD:${{ github.pull_request.head.ref }}"
+          # git fetch author-remote ${{ github.event.pull_request.head.ref }}
+          # git checkout -b bot-swana "author-remote/${{ github.event.pull_request.head.ref }}" # pre-PEP8 script
+          # git push author-remote "HEAD:${{ github.event.pull_request.head.ref }}"
 
       # consider a marketplace action that gives access to GitHub's core API,
       # which includes a methods for auto-fail seen here
