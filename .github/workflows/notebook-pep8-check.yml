@@ -1,11 +1,11 @@
 name: notebook-pep8-check
 on:
+  # use pull_request_target instead of pull_request to allow pushes to PR branch
   pull_request_target:
     branches:
       - main
     paths:
       - 'notebooks/*/*.ipynb' # in jdat_notebooks
-      - 'jdat_notebooks/*/*.ipynb' # in dat_pyinthesky
       - 'nb_zone/*' # in proof-of-concept
     types: [ labeled, opened, synchronize, reopened ]
 
@@ -21,6 +21,7 @@ env:
 permissions:
   contents: write
   pull-requests: write
+  # GITHUB_TOKEN cannot push to PR branch without these permissions
 
 jobs:
   do-notebook-pep8-check:
@@ -75,34 +76,27 @@ jobs:
         with:
           repository: ${{github.event.pull_request.head.repo.full_name}}
           ref: ${{ github.event.pull_request.head.ref }}
-          # is there any case where refs/pull/PR-NUMBER/head makes more sense?
-          fetch-depth: 0 # open to other numbers
-          #  (0 fetches all branches even with ref specified... don't love that,
-          #   but seems the only way to get base and PR branches in same folder)
+          fetch-depth: 0
+          #  (0 fetches all branches even with ref specified... don't love
+          #   fetching everything, but don't see how else to pull base + PR)
           token: ${{ secrets.GITHUB_TOKEN }}
-          # persist-credentials: true
 
       - name: Get changed files
         run: |
-          # make an array of all files added/copied/modified in the PR branch
+          # find last common ancestor commit between target and PR branches
 
           last_common=$(git merge-base origin/${{ github.event.pull_request.base.ref }} ${{ github.event.pull_request.head.ref }})
           echo "last_common"
           echo $last_common
 
-          # git log origin/main --decorate --oneline -5
-          # git log ${{ github.event.pull_request.head.ref }} --decorate --oneline -5
+          # make an array of all files added/copied/modified in the PR branch
 
-          # git_diff=$(git diff --name-only --diff-filter=ACMR ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
           git_diff=$(git diff --name-only --diff-filter=ACMR $last_common ${{ github.event.pull_request.head.sha }})
           echo "git_diff"
           echo $git_diff
 
           # (yes to added, copied, modified and NO to renamed, deleted, type changed, unmerged, or unknown seems reasonable.)
-          # TEMP: allowing renames as well to aid in testing with forks
-
-          # should comparison be with newest commit on base/target branch
-          # OR with last common commit between base and PR branches??
+          # TEMP: allowed renames as well to aid in testing with forks
 
           changed_files=($(printf '%s\n' $git_diff))
           echo "changed_files"
@@ -113,14 +107,12 @@ jobs:
           # https://unix.stackexchange.com/a/377820
 
           changed_dirs_all=( $(printf '%s\n' "${changed_files[@]}" | xargs dirname) )
-          echo "changed_dir_all"
-          echo "${changed_dir_all[@]}"
-          # EDIT: above echos should say changed_dirs_all with the "s"
+          echo "changed_dirs_all"
+          echo "${changed_dirs_all[@]}"
+
           changed_dirs_uniq=( $(printf '%s\n' "${changed_dirs_all[@]}" | sort -u) )
-          echo "changed_dir_uniq"
-          echo "${changed_dir_uniq[@]}"
-          # EDIT: above echos should say changed_dirs_all with the "s"
-          # ('%s\n' could be '%s.' or others depending on shell's $IFS value)
+          echo "changed_dir_suniq"
+          echo "${changed_dirs_uniq[@]}"
 
           if [ "${#changed_dirs_uniq[@]}" != 1 ]; then echo "one_dir=no" >> $GITHUB_ENV; fi
 
@@ -140,7 +132,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8 # which is best?
+          python-version: 3.8 # JDAT recommends 3.8.10
           cache: 'pip'
 
       - name: Cache installs
@@ -148,8 +140,10 @@ jobs:
         id: cache-step
         with:
           path: ~/.cache/pip
-          key: testy
-          # needs to differentiate from other PRs AND same PR with changed dependencies
+          key: testy # must be unique to *current* reqs state of *current* PR
+          # installs are only cached on successful workflow runs, but quick
+          # execution matters most when this workflow fails and the user is
+          # trying to troubleshoot... any workarounds?
 
       - name: Install flake8 and Python dependencies
         if: steps.cache-step.outputs.cache-hit != 'true'
@@ -198,17 +192,12 @@ jobs:
       - name: Push any changes to PR
         if: env.push
         run: |
+          # 'origin' after checkout step is the fork, not the upstream repo
+          git remote -v
+
           # verify identity to allow a push to which other workflows can respond
           git config --local user.email $bot_email
           git config --local user.name $bot_name
-
-          # git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          # (any permission issues if the ID'd party is not an owner?)
-          # EDIT: 'origin' after checkout is actually what i called
-          # author-remote below... no need to set it again in this step!
-
-          # # git remote set-url origin https://${{ github.event.pull_request.user.login }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.event.pull_request.head.user.login }}/${{ github.event.repository.name }}.git
-          git remote -v
 
           # add the changed notebook(s)
           git add --update
@@ -218,17 +207,8 @@ jobs:
           # list changed notebooks in commit message; push the changes
           git_diff_new=($(git diff --name-only --diff-filter=M HEAD))
           git commit -m "[BOT] Left PEP8 feedback on PR #${{ github.event.number }}'s notebooks" -m "Files: $(printf '%s\n' $git_diff_new)"
+          # (is tagging the PR for the best here?)
 
-          # git push origin ${{ env.git_branch }}
-
-          # NOTE: if there's a problem pushing to the branch, it might be because we've checked out refs/pull/PR-NUMBER/head instead of the author's branch. should i copy these steps i take locally?
-          # git remote add author-remote "git@github.com:${{ github.event.pull_request.head.user.login }}/${{ github.event.repository.name }}.git"
-          # git fetch author-remote ${{ github.event.pull_request.head.ref }}
-          # git checkout -b bot-swana "author-remote/${{ github.pull_request.head.ref }}" # pre-PEP8 script
-          # git push author-remote "HEAD:${{ github.event.pull_request.head.ref }}"
-          # NOTE: missing ".event." in previous two lines!
-
-          # git push origin "HEAD:pull/${{ github.event.number }}/head"
           git push origin "HEAD:${{ github.event.pull_request.head.ref }}"
 
       # consider a marketplace action that gives access to GitHub's core API,
